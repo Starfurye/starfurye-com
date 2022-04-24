@@ -1,0 +1,208 @@
+* {
+    --back-color: #17191e;
+    --main-font-color: #eee;
+    --main-border: #8080ff;
+    --small-font-color: #7a829a;
+    --main-content-width: 1000px;
+    --main-content-color: #282c34;
+    --footer-height: 150px;
+    --navigation-height: 80px;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    background-color: var(--main-content-color);
+    line-height: 1.65;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+    margin-bottom: 1.5rem;
+}
+
+p,
+ol,
+ul {
+    font-size: 1.1rem;
+    margin: 2rem 0;
+}
+ol li {
+    margin-bottom: 0.5rem;
+    list-style-position: inside;
+}
+ul li {
+    margin-bottom: 0.5rem;
+    list-style: none;
+}
+a {
+    text-decoration: none;
+    color: var(--main-font-color);
+}
+
+.icon-img {
+    height: 32px;
+}
+main {
+    margin: var(--navigation-height) auto 0;
+    color: var(--main-font-color);
+    width: 100%;
+    max-width: var(--main-content-width);
+    min-height: calc(100vh - var(--footer-height) - var(--navigation-height));
+}
+
+/* navigation */
+.navigation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    color: var(--main-font-color);
+    background-color: var(--back-color);
+    z-index: 999;
+}
+
+.site-logo {
+    display: flex;
+    align-items: center;
+}
+.site-logo img {
+    height: 30px;
+    margin-right: 10px;
+}
+.site-logo span {
+    font-size: 1.2rem;
+}
+.navigation svg {
+    transform: scale(2);
+    color: var(--main-font-color);
+}
+.navigation svg:hover {
+    color: var(--main-border);
+}
+.navigation-main {
+    height: var(--navigation-height);
+    margin: 0 300px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.navigation-main a {
+    color: var(--main-font-color);
+}
+.navigation-tab a {
+    padding: 10px;
+    margin: 0 20px;
+    border: 1px solid var(--back-color);
+}
+.navigation-tab a:hover {
+    border-top: 1px solid var(--main-border);
+    border-bottom: 1px solid var(--main-border);
+    background-color: var(--main-content-color);
+}
+
+/* main container */
+.main-container {
+    margin: 0 10px;
+}
+
+/* main header */
+.main-header {
+    padding-top: 2rem;
+    margin-bottom: 2rem;
+}
+.main-header h1 {
+    margin-bottom: 2rem;
+    font-size: 2.6rem;
+    font-weight: 700;
+}
+.main-header p {
+    color: var(--small-font-color);
+}
+
+/* article list item */
+.article-list-item {
+    margin: 40px 0;
+    border: 1px solid transparent;
+}
+.article-list-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+}
+.article-list-main a {
+    text-decoration: none;
+    color: var(--main-font-color);
+    font-size: 1.5rem;
+    font-weight: 700;
+    padding-bottom: 10px;
+    border: 2px solid transparent;
+}
+.article-list-main a:hover {
+    border-bottom: 2px solid var(--main-border);
+}
+.article-list-main-date {
+    font-size: 0.5rem;
+    color: var(--small-font-color);
+}
+
+/* posts */
+span.post-date {
+    display: block;
+    text-align: right;
+    margin-bottom: 2rem;
+    color: var(--small-font-color);
+}
+section.post h1,
+section.post h2,
+section.post h3,
+section.post h4,
+section.post h5 {
+    display: inline-block;
+    font-size: 1.65rem;
+    padding: 5px 0;
+    margin: 1rem 0;
+    border-bottom: 2px solid var(--main-border);
+}
+article.post a {
+    font-weight: 700;
+    border-bottom: 2px solid var(--main-border);
+}
+article.post a:hover {
+    border: 0;
+    color: var(--main-border);
+}
+article.post ul li::before {
+    content: "\2B17";
+    margin-right: 0.5rem;
+    color: var(--main-border);
+}
+
+/* footer */
+.footer {
+    text-align: center;
+    width: 100%;
+    padding: 3rem 0;
+    background-color: var(--back-color);
+}
+.footer svg {
+    color: var(--main-font-color);
+    transform: scale(1.2);
+    margin: 0 5px;
+}
+.footer-maker {
+    display: block;
+    color: var(--main-font-color);
+    margin-bottom: 15px;
+}
+.footer-tools {
+    display: block;
+    color: var(--main-font-color);
+}
+
+/* code */
