@@ -1,0 +1,331 @@
+---
+title: sshell - simple shell(II)：管道和重定向
+categories:
+  - 编程
+tags:
+  - shell
+  - Linux编程
+cover: false
+abbrlink: a15a7571
+date: 2020-06-07 10:39:04
+---
+
+
+## 代码重构
+
+前文中的代码可以实现简单的重定向输出功能，但是非常不容易拓展，如果要实现更多的功能就要调整一下算法和代码结构。
+
+
+### 分割完的命令字符串数组作为全局变量（可选）
+
+
+在大型项目中，全局变量会使得调试变得困难。但在这个小程序里存在频繁的二维数组传递，容易滋生bug，因此将其作为全局变量：
+
+```C
+char *argv_[MAX_COMMAND_LENGTH];     // command
+```
+
+函数声明对应修改：
+
+```C
+int execute(int argc);
+void mycd(int argc);
+```
+
+然后将改完的函数定义中的`argv`改为`argv_`。
+
+
+### 命令字符串规格化
+
+
+我们在重定向的时候对`>`的位置进行了讨论，现在我们要实现管道，这样一来又得对`|`的位置进行讨论，后面还可能将重定向和管道同时使用。所以为了简化程序逻辑，我们需要在分割命令前将命令规格化，规定`>`, `<`和`|`的左右字符必须为空格：
+
+
+```C
+char* format(char* command) {
+	int len = strlen(command), i;
+	char newcmd[MAX_COMMAND_LENGTH];
+	char* np = newcmd;
+
+	*np++ = command[0];
+	for (i = 1; i < len; ++i) {
+		if (command[i] == '>' || command[i] == '<' || command[i] == '|') {        // 如果发现重定向和管道符号，就将其两边的字符变为空格
+			if (command[i - 1] != ' ') {
+				*np++ = ' ';
+			}
+			*np++ = command[i];
+			if (i + 1 < len && command[i + 1] != ' ') {
+				*np++ = ' ';
+			}
+			continue;
+		}
+		*np++ = command[i];
+	}
+	*np = '\0';
+	np = newcmd;
+	return np;
+}
+```
+这个函数返回规格化完的命令。
+
+
+我们在分割字符串前进行规格化处理：
+
+
+```C
+void mysys(char *command) {
+    char newcmd[MAX_COMMAND_LENGTH];
+    char *token, *np = newcmd;
+    int argc = 0;
+
+	strcpy(newcmd, format(command));                   // format command string before execute
+    token = strtok_r(newcmd, " ", &np);
+	while (token != NULL) {
+        argv_[argc++] = token;
+        token = strtok_r(NULL, " ", &np);
+    }
+    argv_[argc] = NULL;
+    ...
+}
+```
+
+
+### 主程序流程
+
+![mainstream](https://i.loli.net/2020/06/07/w8yOl6GLsjtW1Qp.png)
+
+
+
+## 管道和重定向梳理
+
+
+一旦引进管道，我们前面的重定向算法就不足以应付了。我们以下面这条命令为例梳理一下执行细节：
+
+
+```shell
+cat <input.txt | sort -r | uniq | cat >output.txt
+```
+
+其中input.txt的内容如下：
+
+```Text
+88
+41
+3
+88
+6
+99
+```
+
+输出结果:
+![result](https://i.loli.net/2020/06/07/IXcjZ2gAzC1QdFO.png)
+
+
+可以发现，在不考虑括号及其他一些条件语句的情况下，
+
+1. shell命令是从左至右依次执行的，管道的输入来自前面的**整个**表达式的输出。
+
+2. 重定向符号右边一定是文件地址，碰到重定向符号总是立刻进行重定向，和文件地址后面的内容没有关系。
+
+
+这样可以清楚地了解整个命令的数据流向：
+
+
+![stream](https://i.loli.net/2020/06/07/uknDrjgSEMQtbmR.png)
+
+
+由上面的第一点，我们可以使用一个递归函数来处理管道，每次处理一段。而重定向的范围也只限于管道中的一段，相当于每一段的子任务。
+
+
+
+## 管道
+
+
+递归执行管道函数，先判别有没有'|'：
+
+```C
+int execPipe(int st, int ed) {                          // 递归函数
+	if (st >= ed) return RES_NORMAL;
+
+	int index = -1, i;                         
+	for (i = st; i < ed; ++i) {
+		if (strcmp(argv_[i], "|") == 0) {			// 找到'|'
+			index = i;                         		// 标记'|'的位置
+			break;
+		}
+	}
+
+	if (index == -1) {                              // 没有'|'
+		return execRedirect(st, ed);                // 没有管道，直接处理重定向
+	} else if (index == ed - 1) {                   // ‘|’在最后，error
+		return RES_BAD_COMMAND_PIPE;
+	}
+    ...
+}
+```
+
+没有管道则直接进入重定向处理，否则继续执行管道函数：
+
+```C
+int execPipe(int st, int ed) {                          // 递归函数
+	...
+	int fd[2];
+	if (pipe(fd) == -1) {
+		perror("pipe()");
+		return RES_EXECUTE_ERROR;
+	}
+	
+	int res;
+	pid_t pid = fork();                             // 存在管道，创建子进程处理'|'前的部分
+	if (pid == -1) {
+		perror("fork()");
+        return RES_EXECUTE_ERROR;
+	} else if (pid == 0) {					// child
+		close(fd[0]);
+		dup2(fd[1], 1);                     // 刚创建的子进程的输出指向管道的写端fd[1]
+		close(fd[1]);
+		
+		res = execRedirect(st, index);		
+		exit(res);
+	} else {								// 父进程继续处理'|'后的部分
+		int stat;
+		waitpid(pid, &stat, 0);             // 等待‘|’前的部分处理完成
+		int res_ = WEXITSTATUS(stat);
+
+        if (index < ed - 1) {
+			close(fd[1]);
+			dup2(fd[0], 0);					// 将父进程的输入指向管道的读端fd[0]，接收管道的输出
+			close(fd[0]);
+			res = execPipe(index + 1, ed);	// 递归调用，从index的位置继续扫描
+		}
+	}
+	return res;
+}
+```
+
+管道处理是一个递归过程，每次找到一个'|'，都先处理'|'前的命令，并将处理结果作为'|'后命令的输入。接下来继续递归扫描，如果发现一个'|'，又执行前面的步骤。
+
+
+## 输入输出重定向
+
+
+前面一篇文章中尝试性地实现了输出重定向，现在我们来正式实现输入输出重定向，并且要和前面的管道同时使用。
+
+
+重定向的对象是一个文件和一个命令。输出重定向不是将命令的结果输出至标准输出（显示器），而是输出到文件;输入重定向不是从标准输入（键盘）读取，而是从文件中读取。
+
+这样，我们可以将带重定向的命令和普通命令一起处理，如果没有找到重定向符号，就处理普通命令，否则改变输入/输出为文件。
+
+首先判断重定向符号位置是否符合规范：
+
+```C
+int execRedirect(int st, int ed) {
+	int inCount = 0, outCount = 0, i, right = ed;  // right将作为execvp的命令列表的右边界
+	char* inPath = NULL, *outPath = NULL;
+
+	for (i = st; i < ed; ++i) {                    // 判断重定向符以及是否合法
+		if (strcmp(argv_[i], "<") == 0) {
+			++inCount;
+			if (i == ed - 1) return RES_BAD_COMMAND_REDIRECT;      // '<'位置非法
+			else {
+				inPath = argv_[i + 1];
+			}
+			if (right == ed) right = i;
+		} else if (strcmp(argv_[i], ">") == 0) {
+			++outCount;
+			if (i == ed - 1) return RES_BAD_COMMAND_REDIRECT;      // ‘>’位置非法
+			else {
+				outPath = argv_[i + 1];
+			}
+			if (right == ed) right = i;
+		}
+	}
+	if (inCount > 1 || outCount > 1) return RES_BAD_COMMAND_REDIRECT;      // '>'或'<'多于1个，非法
+```
+
+如果有输入重定向，就将输入指向文件，否则为标准输入;
+
+如果有输出重定向，就将输出指向文件，否则为标准输出。
+
+
+```C
+int execRedirect(int st, int ed) {
+	...
+	int res = RES_NORMAL;
+	pid_t pid = fork();
+	if (pid == -1) {
+		perror("fork()");
+		res = RES_EXECUTE_ERROR;
+	} else if (pid == 0) {                     // 子进程处理命令
+        if (inCount == 1) {                    // 有'<'，更改输入
+            int infd = open(inPath, O_RDONLY);
+            if (infd == -1) {
+                perror("open()");
+                return RES_EXECUTE_ERROR;
+            }
+            dup2(infd, 0);
+            close(infd);
+        }
+        if (outCount == 1) {                    // 有'>'，更改输出
+            int outfd = open(outPath, O_CREAT | O_RDWR, 0666);
+            if (outfd == -1) {
+                perror("open()");
+                return RES_EXECUTE_ERROR;
+            }
+            dup2(outfd, 1);
+            close(outfd);
+        }                                       // 如果没有重定向符号，输入和输出还是标准输入和输出
+        ...
+```
+
+由于原来的参数数组中含有重定向符号和文件名，因此不能作为execvp的参数，所以要重新创建一个参数数组用于execvp。这里可以用到前面记录的right边界：
+
+
+```C
+        ...
+        char* realCommand[MAX_COMMAND_LENGTH];
+        for (i = st; i < right; ++i) {
+            realCommand[i] = argv_[i];
+        }
+        realCommand[i] = NULL;
+        ...
+```
+
+将新的不含重定向符号和文件名的参数数组用于execvp：
+
+
+```C
+		...
+        execvp(realCommand[st], realCommand + st);
+        exit(errno);
+	} else {                                  
+        int stat;
+        waitpid(pid, &stat, 0);                 // 等待子进程执行结束
+        int error = WEXITSTATUS(stat);
+        if (error != 0) {
+            printf("Process exit error: %s\n", strerror(error));
+        }
+    }
+    return res;
+}
+```
+
+
+## 测试结果
+
+
+我们使用真正的shell执行过的一串命令，但是修改一下内容：
+
+
+![sample1](https://i.loli.net/2020/06/14/IY4lw2xcjKP6FtQ.png)
+
+![sample2](https://i.loli.net/2020/06/14/rdTog7ynWl8OkmL.png)
+
+
+{% note info %}
+注意sort -r是将字符串按字典序倒序排列
+{% endnote %}
+
+## 源代码
+
+[github repo](https://github.com/Starfurye/OS_coding/blob/master/shell/sshell.c)

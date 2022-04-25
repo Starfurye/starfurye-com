@@ -1,0 +1,93 @@
+---
+title: 用github做个人图床
+categories: 实用
+tags:
+  - 图床
+  - Github Pages
+cover: false
+abbrlink: fbf41317
+date: 2020-05-29 16:45:05
+---
+
+
+
+## 需求
+
+
+平时写github仓库文档和博客文章的时候要用到图片，一旦图片多了存在服务器上就有点浪费空间，因此选择自己搭建图床。
+
+
+## PicGo
+
+
+[PicGo](https://github.com/Molunerfinn/PicGo)是一个用于快速上传图片并获取图片URL链接的工具。支持七牛图床、腾讯云COS、又拍云、Github、阿里云OSS、Imgur等，具体介绍可见[github文档](https://picgo.github.io/PicGo-Doc/zh/guide/#%E5%BA%94%E7%94%A8%E6%A6%82%E8%BF%B0)。
+
+
+这里我选择使用免费稳定的Github。
+
+
+## 配置Github仓库
+
+
+1. 新建一个Github仓库，名称不重要，我的是`PicBase`。注意和Github Pages一样（如果用Github搭建过免费博客的话），**选择Public仓库**，否则没有人能看到存在里面的图片。
+
+
+2. 进入个人设定（注意不是仓库设定）：![setting](https://i.loli.net/2020/05/29/jizTIFg4sdo2yJl.png)
+
+
+在左边选择最下面的一块**Developer settings**，然后选择**Personal access tokens**，点击**Generate a personal access token**新建一个token：
+![personal_token](https://i.loli.net/2020/05/29/i4zql2rUaQV6kjO.png)
+
+Note随便填，勾选下面的repo，然后创建token：
+![scope](https://i.loli.net/2020/05/29/E3atoDRHC2xVFhe.png)
+
+![mytoken](https://i.loli.net/2020/05/29/u9NaVU4ZcIvs51l.png)
+
+{% note danger %}
+注意截图或者复制保存，以后想再看是看不到的！
+{% endnote %}
+
+## 配置PicGo客户端
+
+
+1. 从上面的PicGo Github页面根据自己的操作系统下载对应的客户端。
+
+
+2. 打开详细窗口，在图床设置里选择Github： ![PicGo.png](https://i.loli.net/2020/05/29/Q3PcsyYlfvX81hq.png)
+
+
+按照提示填写，下面是我的例子：
+
+* 设定仓库名：`starfurye/PicBase`
+
+* 设定分支名：`master`
+
+* 设定Token：`*****************************`（刚才Github创建的私人Token）
+
+* 指定存储路径：``(可以为空，也可以自定义文件夹用来分类)
+
+* 设置自定义域名：`https://raw.githubusercontent.com/starfurye/PicBase/master`
+
+
+3. 使用很简单，就不介绍了。注意上传完链接是直接保存到剪贴板的。
+
+
+## 存在的问题
+
+
+1. 由于仓库是公开的，不要上传私密图片，图片命名最好不需要有规律。
+
+
+2. 由于dns污染，如果不更改hosts，`githubusercontent.com`这个域名在国内部分地区无法访问。而一般人不会去配置hosts，如果主要受众是国内用户，建议还是使用国内的图床。
+
+
+这张使用github图床：![github](https://raw.githubusercontent.com/starfurye/PicBase/master/blog-0-github_error.png)
+
+
+这张使用sm.ms：![sm.ms](https://i.loli.net/2020/05/29/TwrhWtKI7ZClHOc.png)
+
+
+如果两张都看得见，那么你的DNS是正常的。
+
+
+3. 小bug，估计还是上面提到的问题，有时上传github图床会出错。

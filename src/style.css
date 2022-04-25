@@ -163,11 +163,10 @@ section.post h2,
 section.post h3,
 section.post h4,
 section.post h5 {
-    display: inline-block;
     font-size: 1.65rem;
     padding: 5px 0;
     margin: 1rem 0;
-    border-bottom: 2px solid var(--main-border);
+    border-bottom: 1px solid var(--main-border);
 }
 article.post a {
     font-weight: 700;

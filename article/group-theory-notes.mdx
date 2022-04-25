@@ -1,0 +1,403 @@
+---
+title: "Group theory notes"
+date: "2019-04-09"
+categories: ["mathematics"]
+brief-description: "A note for Group theory"
+---
+
+## Permutation Groups 置换群
+
+> Permutation groups are central to the study of geometric symmetries and to Galois theory, the study of finding solutions of polynomial equations. They also provide abundant examples of nonabelian groups.
+
+### Definitions and Notation
+
+In general, the permutations of a set $X​$ form a group $S_{x}​$ . If $X​$ is a finite set, we can assume $X = \{1, 2, . . . , n\}​$. In this case we write $S_{n}​$ instead of $S_{x}​$. The following theorem says that $S_{n}​$ is a group. We call this group the _symmetric group_ on n letters.
+
+**Theorem 1**. The symmetric group on n letters, $S_{n}​$, is a group with n! elements, where the binary operation is the composition of maps.
+
+A subgroup of $S_{n}​$ is called a _permutation group_.
+
+> ZH：$A$上的所有可逆变换构成的群称为$A$上的对称群，其任何子群都叫做$A$上的变换群。$|A|=n$时，$A$上的对称群称为$n$次对称群，记作$S_{n}$，其任何一个子群称为 ​$n​$次置换群。
+
+The following table tells us how to multiply elements in the permutation group $G$.
+
+Though it is natural to multiply elements in a group from left to right, functions are composed from right to left. Let $\sigma$ and $\tau$ be permutations on a set $X$. To compose $\sigma$ and $\tau$ as functions, we calculate $( \sigma ◦ \tau ) ( x ) = \sigma ( \tau ( x ) )$.
+
+**To compute $\sigma\tau$, do $\tau$ first and then $\sigma$**.
+
+Permutation multiplication is not usually commutative.
+
+**Example 1.** Elements of $S_{3}$:
+
+_(divided by the order):_
+
+$order = 1$: $e$
+$order = 2$: $(12), (13), (23)$
+$order = 3$: $(123), (132)$
+
+All subgroups of $S_{3}$:
+
+_(use Lagrange's Theorem)_
+
+$|S_{3}| = 6​$，除平凡子群外，$S_{3}​$中只可能有二阶或三阶子群，又因为 2 与 3 都是素数，因而它们都是循环子群，由二阶和三阶元生成。
+
+$order = 1​$: $H_{1} = e$,
+
+$order = 2​$: $H_{2} = <(12)> = \{e , (12)\}​$, $H_{3} = <(13)> = \{e , (13)\}​$, $H_{4} = <(23)> = \{e , (23)\}​$,
+
+$order = 3​$: $H_{5} = <(123)> = \{e, (123), (132)\}$,
+
+$order = 6​$: $H_{6} = S_{3}​$
+
+**Example 2.** Elements of $S_{4}​$:
+
+_(divided by the order):_
+
+$order = 1$: $e$
+
+$order = 2$: $(12), (13), (14), (23), (24), (34), (12)(34), (13)(24), (14)(23)$
+
+$order = 3$: $(123), (132), (124), (142), (143), (134), (234), (243)$
+
+$order = 4$: $(1234), (1243), (1324), (1342), (1423), (1432)$
+
+All subgroups of $S_{4}​$:
+
+_(use Lagrange's Theorem)_
+
+$|S_{4}| = 24​$，除平凡子群外，$S_{4}​$中可能有 2, 3, 4, 6, 8, 12 阶子群，又因为 2 与 3 都是素数，因而它们都是循环子群，由二阶和三阶元生成。
+
+$order = 1​$: $H_{1} = e​$,
+
+$order = 2​$: $H_{2} = <(12)>​$, $H_{3} = <(13)>​$, $H_{4} = <(14)>​$, $H_{5} = <(23)>​$, $H_{6} = <(24)>​$,
+
+​ $H_{7} = <(34)>​$, $H_{8} = <(12)(34)>​$, $H_{9} = <(14)(23)>​$, $H_{10} = <(13)(24)>​$
+
+$order = 3​$: $H_{11} = <(123)>​$, $H_{12} = <(124)>​$, $H_{13} = <(134)>​$, $H_{14} = <(234)>​$
+
+$order = 4$: $H_{15} = <(1234)>$, $H_{16} = <(1243)>$, $H_{17} = <(1324)>$, $H_{18} = <(13), (24)>$,
+
+​ $H_{19} = <(14), (23)>$, $H_{20} = <(12), (34)>$, $H_{21} = <(12)(34), (13)(24)> (Klein)$
+
+$order = 6$: $H_{22} = <(123), (12)>$, $H_{23} = <(124), (24)>$, $H_{24} = <(134), (13)>$,
+
+$H_{25} = <(234)(23)>​$
+
+$order = 8​$: $H_{26} = <(1234), (13)>​$, $H_{27} = <(1243), (14)>​$, $H_{28} = <(1324), (12)>​$
+
+$order = 12​$: $H_{29} = A_{4} = \{e, (12)(34), (14)(23), (13)(24), (123), (132), (124), (142), (134),​$
+
+​ $(143), (234), (243)\}​$
+
+$order = 24​$: $H_{30} = S_{4}​$
+
+...
+
+## Cosets and Lagrange's Theorem 陪集和拉格朗日定理
+
+> Lagrange’s Theorem, one of the most important results in finite group theory, states that the order of a subgroup must divide the order of the group. This theorem provides a powerful tool for analyzing finite groups; it gives us an idea of exactly what type of subgroups we might expect a finite group to possess.
+
+### Cosets
+
+Let $G​$ be a group and $H​$ a subgroup of $G​$. Define a left coset of $H​$ with representative $g ∈ G​$ to be the set
+$gH = {gh : h ∈ H}​$.
+Right cosets can be defined similarly by
+$Hg = {hg : h ∈ H}​$.
+
+**Example 1.** Let $H$ be the subgroup of $Z_{6}$ consisting of the elements 0 and 3. The cosets
+are
+$0 + H = 3 + H = \{0, 3\}$
+$1 + H = 4 + H = \{1, 4\}$
+$2 + H = 5 + H = \{2, 5\}$.
+
+**Example 2.** Let $H​$ be the subgroup of $S_{3}​$ defined by the permutations ${(1), (123), (132)}​$. The left cosets of $H​$ are
+$(1)H = (123)H = (132)H = {(1), (123), (132)}​$
+$(12)H = (13)H = (23)H = {(12), (13), (23)}​$.
+The right cosets of $H​$ are exactly the same as the left cosets.
+
+**Lemma 1.** Let $H$ be a subgroup of a group $G$ and suppose that $g1, g2 ∈ G$. The following conditions are equivalent.
+
+1. $g_{1}H = g_{2}H​$;
+2. $Hg^{−1}  = Hg^{−1}​$;
+3. $g_{1}H \subseteq g_{2}H$;
+
+4. $g_{2} \in g_{1}H$;
+5. $g_{1}^{−1}g_{2} \in H​$.
+
+In all of our examples the cosets of a subgroup $H​$ partition the larger group $G​$. The following theorem proclaims that this will always be the case.
+
+**Theorem 1.** Let $H​$ be a subgroup of a group $G​$. Then the left cosets of $H​$ in $G​$ partition
+$G​$. That is, the group $G​$ is the disjoint union of the left cosets of $H​$ in $G​$.
+
+> ZH：H 的所有左陪集的集合 ${aH|a \in G}​$ 构成$H​$的一个划分
+
+​ Let $G​$ be a group and $H​$ be a subgroup of $G​$. Define the **index** of $H​$ in $G​$ to be the number of left cosets of $H​$ in $G​$. We will denote the index by $[G : H]​$.
+
+> ZH：设$G​$是群，$H \leqslant G​$，$H​$ 在 $G​$ 中的左（右）陪集个数称为 $H​$ 在 $G​$ 中的**指数**，记作$[G : H]​$
+
+**Example 3.** Let $G$ = $Z_{6}$ and $H = {0,3}$. Then $[G : H] = 3$.
+**Example 4.** Suppose that G = $S_{3}$, $H = {(1), (123), (132)}$, and $K = {(1), (12)}$. Then
+$[G : H] = 2$ and $[G : K] = 3​$.
+
+### Lagrange’s Theorem
+
+**Proposition 1.** Let $H​$ be a subgroup of $G​$ with $g \in G​$ and define a map $\phi : H \to gH​$ by $\phi(h) = gh​$. The map $\phi​$ is bijective; hence, the number of elements in $H​$ is the same as the number of elements in $gH​$.
+
+**Theorem 1.** (Lagrange). Let $G$ be a finite group and let $H$ be a subgroup of $G$. Then $|G|/|H| = [G : H]$ is the number of distinct left cosets of $H$ in $G$. In particular, the number of elements in $H$ must divide the number of elements in $G$.
+
+**Proof.** The group $G$ is partitioned into $[G : H]$ distinct left cosets. Each left coset has $|H|$ elements; therefore, $|G| = [G : H]|H|$.
+
+> My explanation: 以$Z_{6}$为例：
+> $0 + H = 3 + H = \{0, 3\}$ > $1 + H = 4 + H = \{1, 4\}$ > $2 + H = 5 + H = \{2, 5\}$.
+> 三个陪集将$G$划分为三个等价类，而每一个陪集的元素个数均为$|a_{i}H| = |H|$，所以群$G$的元素个数等于等价类的个数乘以每个等价类的元素数。
+
+**Corollary 1.** Suppose that $G$ is a finite group and $g \in G$. Then the order of $g$ must divide the number of elements in $G$.
+**Corollary 2.** Let $|G| = p$ with $p$ a prime number. Then $G$ is cyclic and any $g \in G$ such that $g \neq e​$ is a generator.
+
+Corollary 2 suggests that groups of prime order $p​$ must somehow look like $Z_{p}​$.
+
+Corollary 3. Let $H$ and $K$ be subgroups of a finite group $G$ such that $G \supset H \supset K$.
+Then
+$[G:K] = [G:H] [H :K]$.
+
+The converse of Lagrange’s Theorem is false.(It can be confirmed by the example of $A_{4}$)
+
+**Proposition 2.** The group $A_{4}$ has no subgroup of order 6.
+
+**Theorem 3.** Two cycles $\tau$ and $μ$ in $S_{n}$ have the same length if and only if there exists $a\sigma \in Sn$ such that $μ = \sigma\tau\sigma^{−1}​$.
+
+### Fermat’s and Euler’s Theorems
+
+## Isomorphisms 同构
+
+> Many groups may appear to be different at first glance, but can be shown to be the same by a simple renaming of the group elements.
+
+Two groups $(G,·)$ and $(H,◦)$ are **isomorphic** if there exists a one-to-one and onto map $\phi : G \to H$ such that the group operation is preserved; that is,
+
+​ $$\phi ( a · b ) = \phi ( a ) ◦ \phi ( b )$$
+
+for all $a$ and $b$ in $G$. If $G$ is isomorphic to $H$, we write $G \cong H$. The map $\phi$ is called an
+
+**isomorphism**.
+
+**Example 1.** We can define an isomorphism $\phi$ from the additive group of real numbers $(R , +)$ to the multiplicative group of positive real numbers $(R^{+} , ·)$ with the exponential map; that is,
+
+​ $\phi (x + y) = e^{x + y} = e^{x}e^{y} = \phi(x)\phi(y)$.
+
+Of course, we must still show that $\phi$ is one-to-one and onto, but this can be determined
+
+using calculus.
+
+**Theorem 1.** Let $\phi : G \to H$ be an isomorphism of two groups. Then the following statements are true.
+
+1. $\phi^{−1} : H → G $ is an isomorphism.
+
+2. $|G| = |H|$.
+
+3. If $G$ is abelian, then $H$ is abelian.
+
+4. If $G$ is cyclic, then $H$ is cyclic.
+
+5. If $G$ has a subgroup of order $n$, then $H$ has a subgroup of order $n$.
+
+**Theorem 2.** All cyclic groups of infinite order are isomorphic to $Z$.
+
+**Theorem 3.** If $G$ is a cyclic group of order $n$, then $G$ is isomorphic to $Z_{n}$.
+
+**Corollary 1.** If $G$ is a group of order $p$, where $p$ is a prime number, then $G$ is isomorphic
+to $Z_{p}$.
+
+The main goal in group theory is to classify all groups; however, it makes sense to
+consider two groups to be the same if they are isomorphic. We state this result in the
+following theorem.
+
+**Theorem 4.** The isomorphism of groups determines an equivalence relation on the class
+of all groups.
+
+Hence, we can modify our goal of classifying all groups to classifying all groups up to
+isomorphism; that is, we will consider two groups to be the same if they are isomorphic.
+
+### Cayley's Theorem
+
+The addition table of $Z_{3}$ suggests that it is the same as the permutation group $G =
+\{(0), (012), (021)\}$. $0 \to (0)$, $1 \to (012)$, $2 \to (021)$.
+
+**Theorem 1** (Cayley). Every group is isomorphic to a group of permutations.
+
+...
+
+## Normal Subgroups and Factor Groups 正规子群和商群
+
+### Normal Subgroups
+
+A subgroup $H$ of a group $G$ is normal in $G$ if $gH = Hg$ for all $g \in G$. That is, a normal
+subgroup of a group $G$ is one in which the right and left cosets are precisely the same.
+
+Let $H$ be the subgroup of $S_{3}$ consisting of elements ​$(1)$ and $(12)$. Since
+
+​ $(123)H = \{(123), (13)\}​$ and $H (123) = \{(123), (23)\}​$,
+
+$H​$ cannot be a normal subgroup of $S_{3}​$. However, the subgroup $N​$, consisting of the permu- tations $(1)​$, $(123)​$, and $(132)​$, is normal since the cosets of $N​$ are
+
+​ $N = \{(1), (123), (132)\}​$
+
+​ $(12)N = N (12) = \{(12), (13), (23)\}$.
+
+The following theorem is fundamental to our understanding of normal subgroups.
+
+Let $G$ be a group and $N$ be a subgroup of $G$. Then the following statements are equivalent.
+
+1. The subgroup $N$ is normal in $G$.
+
+2. For all $g \in G$, $gNg^{−1} \subset N$.
+
+3. For all $g \in G$, $gNg^{−1} = N$.
+
+### Factor Groups
+
+If $N$ is a normal subgroup of a group $G$, then the cosets of $N$ in $G$ form a group $G/N$ under
+the operation $(aN)(bN) = abN$. This group is called the **factor** or **quotient** group of $G$
+and $N$.
+
+**Theorem 1.** Let $N$ be a normal subgroup of a group $G$. The cosets of $N$ in $G$ form a
+group $G/N$ of order $[G : N]$.
+
+It is very important to remember that the elements in a factor group are _sets of elements_
+in the original group.
+
+**Example 1.** Consider the normal subgroup $3Z$ of $Z$. The cosets of $3Z$ in $Z$ are
+
+​ $0 + 3Z = \{...,−3,0,3,6,…\}$
+
+​ $1 + 3Z = \{...,−2,1,4,7,…\}$
+
+​ $2 + 3Z = \{...,−1,2,5,8,…\}$.
+
+In general, the subgroup $nZ$ of $Z$ is normal. The cosets of $Z/nZ$ are
+
+​ $nZ$
+
+​ $1 + nZ$
+
+$2 + nZ$
+
+​ .
+
+​ .
+
+​ $(n − 1) + nZ$.
+
+### The Simplicity of the Alternating Group
+
+Of special interest are groups with no nontrivial normal subgroups. Such groups are called
+simple groups. Of course, we already have a whole class of examples of simple groups, $Z_{p}$,
+where $p$ is prime. These groups are trivially simple since they have no proper subgroups
+other than the subgroup consisting solely of the identity. Other examples of simple groups
+are not so easily found. We can, however, show that the alternating group, $A_{n}$, is simple
+for $n ≥ 5$.
+
+**Lemma 1.** The alternating group $A_{n}$ is generated by 3-cycles for $n ≥ 3$.
+
+**Lemma 2.** Let $N$ be a normal subgroup of $A_{n}$, where $n ≥ 3$. If $N$ contains a 3-cycle,
+then $N = A_{n}$.
+
+**Lemma 3.** For $n ≥ 5$, every nontrivial normal subgroup $N$ of $A_{n}$ contains a 3-cycle.
+
+...
+
+**Theorem 1.** The alternating group, $A_{n}​$, is simple for $n ≥ 5​$.
+
+## Homomorphisms 同态
+
+> One of the basic ideas of algebra is the concept of a homomorphism, a natural generalization
+> of an isomorphism. If we relax the requirement that an isomorphism of groups be bijective,
+> we have a homomorphism.
+
+### Group Homomorphisms
+
+A homomorphism between groups $(G, ·)$ and $(H, ◦)$ is a map $\phi : G \to H$ such that
+
+​ $\phi(g1 · g2) = \phi(g1) ◦ \phi(g2)$
+
+for $g1, g2 \in G$. The range of $\phi$ in $H$ is called the **homomorphic image** of $\phi$.
+
+**Example 1.** Let $G$ be a group and $g \in G$. Define a map $\phi : Z \to G$ by $\phi(n) = g^{n}$.
+
+Then $\phi$ is a group homomorphism, since
+$\phi(m + n) = g^{m + n} = g^{m}g^{n} = \phi(m)\phi(n)$.
+
+This homomorphism maps $Z$ onto the cyclic subgroup of $G$ generated by $g$.
+
+**Proposition 1.** Let $\phi : G_{1} \to G_{2}$ be a homomorphism of groups. Then
+
+1. If $e$ is the identity of $G_{1}$, then $\phi(e)$ is the identity of $G_{2}$;
+
+2. For any element $g \in G_{1}$, $\phi(g^{−1}) = [\phi(g)]^{−1}$;
+
+3. If $H_{1}$ is a subgroup of $G_{1}$, then $\phi(H_{1})$ is a subgroup of $G_{2}$;
+
+4. If $H_{2}$ is a subgroup of $G_{2}$, then $\phi^{−1}(H_{2}) = \{g \in G_{1} : \phi(g) \in H_{2}\}$ is a subgroup of $G_{1}$. Furthermore, if $H_{2}$ is normal in $G_{2}$, then $\phi^{−1}(H_{2})$ is normal in $G_{1}$.
+
+Let $\phi : G \to H$ be a group homomorphism and suppose that $e$ is the identity of $H$. By Proposition 1, $\phi^{−1}(\{e\})$ is a subgroup of $G$. This subgroup is called the **kernel** of $\phi$ and will be denoted by ker $\phi$. In fact, this subgroup is a normal subgroup of $G$ since the trivial subgroup is normal in $H​$. We state this result in the following theorem, which says that with every homomorphism of groups we can naturally associate a normal subgroup.
+
+**Theorem 1.** Let $\phi : G \to H$ be a group homomorphism. Then the kernel of $\phi$ is a normal subgroup of G.
+
+**Example 2.** Suppose that we wish to determine all possible homomorphisms $\phi$ from $Z_{7}$ to $Z_{12}$. Since the kernel of $\phi$ must be a subgroup of $Z_{7}$, there are only two possible kernels, $\{0\}$ and all of $Z_{7}$. The image of a subgroup of $Z_{7}$ must be a subgroup of $Z_{12}$. Hence, there is no injective homomorphism; otherwise, $Z_{12}$ would have a subgroup of order 7, which is impossible. Consequently, the only possible homomorphism from $Z_{7}$ to $Z_{12}$ is the one mapping all elements to zero.
+
+**Example 3.** Let $G$ be a group. Suppose that $g \in G$ and $\phi$ is the homomorphism from $Z$
+to $G$ given by $\phi(n) = g^{n}$. If the order of $g$ is infinite, then the kernel of this homomorphism
+is $\{0\}$ (hint: $g^{0} = e$) since $\phi$ maps $Z$ onto the cyclic subgroup of $G$ generated by $g$. However, if the order of $g$ is finite, say $n$, then the kernel of $\phi$ is $nZ$.
+
+### The Isomorphism Theorems
+
+Although it is not evident at first, factor groups correspond exactly to homomorphic images,
+and we can use factor groups to study homomorphisms. We already know that with every
+group homomorphism $\phi : G \to H$ we can associate a normal subgroup of $G$, $ker\phi$. The
+converse is also true; that is, very normal subgroup of a group $G$ gives rise to homomorphism
+of groups.
+
+Let $H$ be a normal subgroup of $G$. Define the **natural** or **canonical homomorphism**
+
+​ $\phi : G \to G/H$
+
+by
+
+​ $\phi(g) = gH$.
+
+This is indeed a homomorphism, since
+
+$\phi(g_{1}g_{2}) = g_{1}g_{2}H = g_{1}Hg_{2}H = \phi(g_{1})\phi(g_{2})$.
+
+The kernel of this homomorphism is $H$. The following theorems describe the relationships
+
+between group homomorphisms, normal subgroups, and factor groups.
+
+**Theorem 1.** (First Isomorphism Theorem). If $ψ : G \to H$ is a group homomorphism
+with $K = ker ψ$, then $K$ is normal in $G$. Let $\phi : G \to G/K$ be the canonical homomorphism.
+Then there exists a unique isomorphism $η : G/K \to ψ(G)$ such that $ψ = η\phi$.
+
+**Example 1.** Let $G​$ be a cyclic group with generator $g​$. Define a map $\phi : Z \to G​$ by $n 􏰀\to g^{n}​$. This map is a surjective homomorphism since
+
+​ $\phi(m + n) = g^{m+n} = g^{m}g^{n} = \phi(m)\phi(n)$.
+
+Clearly, $\phi$ is onto. If $|g| = m$, then $g^{m} = e$. Hence, $ker \phi = mZ$ and $Z/ker\phi = Z/mZ \cong G$. On the other hand, if the order of $g$ is infinite, then $ker \phi = 0$ and $\phi$ is an isomorphism of $G$ and $Z$. Hence, two cyclic groups are isomorphic exactly when they have the same order. Up to isomorphism, the only cyclic groups are $Z$ and $Z_{n}$.
+
+**Theorem 2.** (Second Isomorphism Theorem). Let $H$ be a subgroup of a group $G$ (not necessarily normal in $G$) and $N$ a normal subgroup of $G$. Then $HN$ is a subgroup of $G$, $H \cap N$ is a normal subgroup of $H$, and
+
+​ $H / H \cap N \cong H N / N $.
+
+**Theorem 3.** (Correspondence Theorem). Let $N$ be a normal subgroup of a group $G$.
+Then $H 􏰀\to H/N$ is a one-to-one correspondence between the set of subgroups $H$ containing
+$N$ and the set of subgroups of $G/N$. Furthermore, the normal subgroups of $G$ containing $N$
+correspond to normal subgroups of $G/N$.
+
+**Theorem 4.** (Third Isomorphism Theorem). Let $G​$ be a group and $N​$ and $H​$ be normal
+subgroups of $G​$ with $N \subset H​$. Then
+
+​ $$G/H \cong \frac{G/N}{H/N}$$.
+
+**Example 2.** By the Third Isomorphism Theorem, $Z/mZ \cong (Z/mnZ)/(mZ/mnZ)$.
+
+Since $|Z/mnZ| = mn$ and $|Z/mZ| = m$, we have $|mZ/mnZ| = n$.
+
+**Sage** Sage can create homomorphisms between groups, which can be used directly as functions, and then queried for their kernels and images. So there is great potential for exploring the many fundamental relationships between groups, normal subgroups, quotient groups and properties of homomorphisms.

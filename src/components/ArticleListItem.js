@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "gatsby";
 
-export const ArticleListItem = ({ node }) => {
+export const ArticleListItem = ({ node, needTag }) => {
     return (
         <section className="article-list-item">
             <div className="article-list-main">
