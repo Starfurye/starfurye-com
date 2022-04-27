@@ -9,7 +9,7 @@ import "../style.css";
 const navigationTabs = [
     { url: "/article", label: "Articles" },
     { url: "/categories", label: "Categories" },
-    { url: "/about", label: "About me" },
+    { url: "/about", label: "About" },
 ];
 
 const Navigation = (props) => {

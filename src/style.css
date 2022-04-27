@@ -105,6 +105,7 @@ main {
     color: var(--main-font-color);
 }
 .navigation svg:hover {
+    cursor: pointer;
     color: var(--main-border);
 }
 .navigation-main {
@@ -123,6 +124,7 @@ main {
     border: 1px solid var(--back-color);
 }
 .navigation-tab a:hover {
+    cursor: pointer;
     border-top: 1px solid var(--main-border);
     border-bottom: 1px solid var(--main-border);
     background-color: var(--main-content-color);
@@ -171,6 +173,7 @@ main {
     border-bottom: 1px solid var(--main-border);
 }
 .section-header a:hover {
+    cursor: pointer;
     border: transparent;
     color: var(--main-border);
 }
@@ -199,6 +202,7 @@ main {
     border: 2px solid transparent;
 }
 .article-list-main a:hover {
+    cursor: pointer;
     border-bottom: 2px solid var(--main-border);
 }
 .article-list-main-date {
@@ -218,23 +222,27 @@ section.post h2,
 section.post h3,
 section.post h4,
 section.post h5 {
-    font-size: 1.65rem;
+    font-size: 150%;
     padding: 5px 0;
     margin: 1rem 0;
     border-bottom: 1px solid var(--main-border);
 }
-article.post a {
+section.post a {
     font-weight: 700;
     border-bottom: 2px solid var(--main-border);
 }
-article.post a:hover {
+section.post a:hover {
+    cursor: pointer;
     border: 0;
     color: var(--main-border);
 }
-article.post ul li::before {
+section.post ul li::before {
     content: "\2B17";
     margin-right: 0.5rem;
     color: var(--main-border);
+}
+section.post p {
+    overflow-x: auto;
 }
 
 /* footer */
@@ -263,4 +271,111 @@ article.post ul li::before {
 pre[class*="language-"] {
     font-size: 1.2rem;
     overflow-x: auto;
+}
+
+@media screen and (max-width: 800px) {
+    p,
+    ol,
+    ul,
+    blockquote {
+        font-size: 1rem;
+        margin: 0 0 1.5rem;
+    }
+
+    /* navigation */
+    .navigation svg {
+        transform: scale(1.6);
+        color: var(--main-font-color);
+    }
+    .site-logo img {
+        height: 30px;
+        margin-right: 10px;
+    }
+    .site-logo span {
+        font-size: 1.2rem;
+    }
+    .navigation-main {
+        height: var(--navigation-height);
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .navigation-main a {
+        display: block;
+        color: var(--main-font-color);
+    }
+    .navigation-tab {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0 5px;
+    }
+    .navigation-tab a {
+        padding: 0 5px;
+        margin: 0 5px;
+        border: 1px solid transparent;
+    }
+    .navigation-links {
+        margin: 0 5px;
+    }
+
+    main {
+        margin: var(--navigation-height) auto 0;
+        color: var(--main-font-color);
+        min-height: calc(
+            100vh - var(--footer-height) - var(--navigation-height)
+        );
+    }
+
+    /* main header */
+    .main-header h1 {
+        margin-bottom: 2rem;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    /* main container */
+    .main-container {
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    .article-list-main {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .article-list-main a {
+        text-decoration: underline;
+    }
+    pre[class*="language-"] {
+        font-size: 1rem;
+        overflow-x: auto;
+    }
+    /* posts */
+    section.post h1,
+    section.post h2,
+    section.post h3,
+    section.post h4,
+    section.post h5 {
+        font-size: 150%;
+        padding: 5px 0;
+        margin: 1rem 0;
+        border-bottom: 1px solid var(--main-border);
+    }
+    article.post a {
+        font-weight: 700;
+        border-bottom: 2px solid var(--main-border);
+    }
+    article.post a:hover {
+        cursor: pointer;
+        border: 0;
+        color: var(--main-border);
+    }
+    article.post ul li::before {
+        content: "\2B17";
+        margin-right: 0.5rem;
+        color: var(--main-border);
+    }
 }

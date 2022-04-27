@@ -12,6 +12,7 @@ const WideHeader = ({ title, subtitle, backImgUrl }) => {
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
+                border: "1px solid transparent",
             }}
         >
             <h1>{title}</h1>
