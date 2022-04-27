@@ -20,7 +20,7 @@ const IndexPage = ({ data }) => {
                     <Link to="/article">All</Link>
                 </h2>
                 {data.latest.nodes.map((node) => (
-                    <ArticleListItem node={node} />
+                    <ArticleListItem node={node} prefix={"/article/"} />
                 ))}
             </article>
         </Layout>
