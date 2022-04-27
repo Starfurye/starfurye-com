@@ -1,5 +1,5 @@
 import React from "react";
-import Layout from "../../components/layout";
+import Layout from "../../components/Layout";
 import { MDXRenderer } from "gatsby-plugin-mdx";
 import { MDXProvider } from "@mdx-js/react";
 import { graphql } from "gatsby";
