@@ -13,7 +13,11 @@ const CategoriesPage = ({
     <Layout>
         <Helmet title="Categories" />
         <article className="main-container">
-            <Header title="Categories" description="All categories" />
+            <Header
+                title="Categories"
+                description="All categories"
+                isCenter={false}
+            />
             <section>
                 <ul>
                     {group.map((category) => (

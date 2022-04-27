@@ -19,7 +19,7 @@ const Navigation = (props) => {
                 <Link to="/">
                     <div className="site-logo">
                         <img src={logo} alt="logo"></img>
-                        <span>Starfurye</span>
+                        {/* <span>Starfurye</span> */}
                     </div>
                 </Link>
                 <div className="navigation-tab">

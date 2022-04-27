@@ -4,6 +4,7 @@ import { Link, graphql } from "gatsby";
 
 import Layout from "../components/layout";
 import { Header } from "../components/header";
+import { ArticleListItem } from "../components/ArticleListItem";
 
 const Categories = ({ pageContext, data }) => {
     const { category } = pageContext;
@@ -15,9 +16,13 @@ const Categories = ({ pageContext, data }) => {
                 <Header
                     title={category}
                     description={`Article list of category - ${category}`}
+                    isCenter={false}
                 />
                 <ul>
-                    {edges.map(({ node }) => {
+                    {edges.map(({ node }) => (
+                        <ArticleListItem node={node} prefix="/article/" />
+                    ))}
+                    {/* {edges.map(({ node }) => {
                         const slug = node.slug;
                         const { title } = node.frontmatter;
                         return (
@@ -25,7 +30,7 @@ const Categories = ({ pageContext, data }) => {
                                 <Link to={`/article/${slug}`}>{title}</Link>
                             </li>
                         );
-                    })}
+                    })} */}
                 </ul>
             </article>
         </Layout>
@@ -47,6 +52,7 @@ export const categoryQuery = graphql`
                     slug
                     frontmatter {
                         title
+                        date(formatString: "MMMM D, YYYY")
                     }
                 }
             }
