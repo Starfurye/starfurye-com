@@ -40,6 +40,7 @@ export const IndexPageQuery = graphql`
                     date(formatString: "MMMM D, YYYY")
                     title
                     categories
+                    brief_description
                 }
                 slug
                 id

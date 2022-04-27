@@ -167,7 +167,7 @@ main {
 /* article list item */
 .article-list-item {
     margin: 40px 0;
-    border: 1px solid transparent;
+    border-bottom: 1px solid #fff;
 }
 .article-list-main {
     display: flex;
