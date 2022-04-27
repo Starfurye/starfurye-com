@@ -6,7 +6,7 @@ import { graphql } from "gatsby";
 import Helmet from "react-helmet";
 
 import CodeBlock from "../../components/CodeBlock";
-import { Header } from "../../components/header";
+import Header from "../../components/Header";
 
 const components = {
     pre: CodeBlock,

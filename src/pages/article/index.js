@@ -4,7 +4,7 @@ import Layout from "../../components/layout";
 import Helmet from "react-helmet";
 
 import { ArticleListItem } from "../../components/ArticleListItem";
-import { Header } from "../../components/header";
+import Header from "../../components/Header";
 
 const ArticlesPage = ({ data }) => {
     return (

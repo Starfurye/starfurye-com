@@ -3,7 +3,7 @@ import Helmet from "react-helmet";
 import { Link, graphql } from "gatsby";
 
 import Layout from "../components/layout";
-import { Header } from "../components/header";
+import Header from "../components/Header";
 import { ArticleListItem } from "../components/ArticleListItem";
 
 const Categories = ({ pageContext, data }) => {

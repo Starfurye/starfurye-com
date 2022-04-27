@@ -1,7 +1,7 @@
 import React from "react";
 import Footer from "./Footer";
 import Navigation from "./Navigation";
-import { Header } from "./header";
+import Header from "./Header";
 
 const CommonLayout = (props) => {
     return (
