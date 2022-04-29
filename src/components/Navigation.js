@@ -1,18 +1,19 @@
 import { Link } from "gatsby";
 import React from "react";
 import { FaGithub } from "@react-icons/all-files/fa/FaGithub";
+import NavLink from "./NavLink";
 
 import logo from "../assets/galaga-logo.png";
 
 import "../style.css";
 
-const navigationTabs = [
-    { url: "/article", label: "Articles" },
-    { url: "/categories", label: "Categories" },
-    { url: "/about", label: "About" },
-];
+// const navigationTabs = [
+//     { url: "/article", label: "Articles" },
+//     { url: "/categories", label: "Categories" },
+//     { url: "/about", label: "About" },
+// ];
 
-const Navigation = (props) => {
+const Navigation = ({ isMobile }) => {
     return (
         <nav className="navigation">
             <div className="navigation-main">
@@ -22,13 +23,13 @@ const Navigation = (props) => {
                         {/* <span>Starfurye</span> */}
                     </div>
                 </Link>
-                <div className="navigation-tab">
-                    {navigationTabs.map((bar) => (
-                        <Link to={bar.url} key={bar.label}>
-                            {bar.label}
-                        </Link>
-                    ))}
-                </div>
+                {isMobile ? (
+                    ""
+                ) : (
+                    <nav className="navigation-tab">
+                        <NavLink />
+                    </nav>
+                )}
                 <div className="navigation-links">
                     <Link to="https://github.com/Starfurye">
                         <FaGithub />

@@ -118,6 +118,11 @@ main {
 .navigation-main a {
     color: var(--main-font-color);
 }
+.navigation-tab ul {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .navigation-tab a {
     padding: 10px;
     margin: 0 20px;
@@ -305,11 +310,12 @@ pre[class*="language-"] {
         display: block;
         color: var(--main-font-color);
     }
-    .navigation-tab {
+    .navigation-tab ul {
         display: flex;
         justify-content: center;
         align-items: center;
         padding: 0 5px;
+        margin: 0 auto;
     }
     .navigation-tab a {
         padding: 0 5px;
