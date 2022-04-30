@@ -1,18 +1,16 @@
 import React from "react";
 
 import Footer from "./Footer";
+// Gatsby building 过程中访问不了window
+// if (typeof window !== "undefined") {
+//     const Navigation = require("./Navigation");
+// }
 import Navigation from "./Navigation";
 
-// import "@fontsource/open-sans";
-// import "@fontsource/open-sans/500.css";
-
 const Layout = (props) => {
-    // 检查是否为移动终端
-    const isMobile = window.matchMedia("(max-width: 800px)").matches;
-
     return (
         <>
-            <Navigation isMobile={isMobile} />
+            <Navigation />
             <main>{props.children}</main>
             <Footer />
         </>

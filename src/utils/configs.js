@@ -1,5 +1,3 @@
-import mainImage from "../assets/main-image.jpeg";
-
 const configs = {
     siteTitle: "Starfurye",
     siteUrl: "https://www.yourdomain.tld",

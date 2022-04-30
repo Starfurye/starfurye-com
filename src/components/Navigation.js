@@ -11,7 +11,13 @@ import configs from "../utils/configs";
 
 import "../style.css";
 
-const Navigation = ({ isMobile }) => {
+const isBrowser = typeof window !== "undefined";
+
+const Navigation = () => {
+    let isMobile = isBrowser
+        ? window.matchMedia("(max-width: 800px)").matches
+        : null;
+
     const [sideBarIsOpen, setSidebBarIsOpen] = useState(false);
 
     const openSideBarHandler = () => {
