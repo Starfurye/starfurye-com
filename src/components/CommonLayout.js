@@ -4,9 +4,12 @@ import Navigation from "./Navigation";
 import Header from "./Header";
 
 const CommonLayout = (props) => {
+    // 检查是否为移动终端
+    const isMobile = window.matchMedia("(max-width: 800px)").matches;
+
     return (
         <>
-            <Navigation />
+            <Navigation isMobile={isMobile} />
             <main>
                 <article className="main-container">
                     <Header

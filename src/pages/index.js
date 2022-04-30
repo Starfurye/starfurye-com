@@ -1,7 +1,8 @@
 import React from "react";
 import { Link, graphql } from "gatsby";
-import configs from "../utils/configs";
 import Helmet from "react-helmet";
+
+import configs from "../utils/configs";
 import Layout from "../components/Layout";
 import WideHeader from "../components/WideHeader";
 import { ArticleListItem } from "../components/ArticleListItem";
@@ -10,10 +11,7 @@ const IndexPage = ({ data }) => {
     return (
         <Layout>
             <Helmet title={configs.siteTitle} />
-            <WideHeader
-                title="Starfurye"
-                backImgUrl={"https://i.loli.net/2020/06/05/MgJDtP1uNGdZ8Lf.jpg"}
-            />
+            <WideHeader title="Starfurye" backImgUrl={configs.mainImgURL} />
             <article className="main-container">
                 <h2 className="section-header">
                     <span>最近的创作</span>
