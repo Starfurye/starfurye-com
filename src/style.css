@@ -135,6 +135,10 @@ main {
     background-color: var(--main-content-color);
 }
 
+.navigation-menu-button {
+    display: none;
+}
+
 /* main container */
 .main-container {
     margin: 0 auto;
@@ -219,11 +223,14 @@ main {
 }
 
 /* posts */
-span.post-date {
-    display: block;
-    text-align: right;
-    margin-bottom: 2rem;
+.post-metadata {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     color: var(--small-font-color);
+}
+.post-modified svg {
+    margin-right: 0.5rem;
 }
 section.post h1,
 section.post h2,
@@ -332,17 +339,8 @@ pre[class*="language-"] {
         display: block;
         color: var(--main-font-color);
     }
-    .navigation-tab ul {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 0 5px;
-        margin: 0 auto;
-    }
-    .navigation-tab a {
-        padding: 0 5px;
-        margin: 0 5px;
-        border: 1px solid transparent;
+    .navigation-tab {
+        display: none;
     }
     .navigation-links {
         margin: 0 5px;

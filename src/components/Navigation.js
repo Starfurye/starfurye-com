@@ -11,13 +11,7 @@ import configs from "../utils/configs";
 
 import "../style.css";
 
-const isBrowser = typeof window !== "undefined";
-
 const Navigation = () => {
-    let isMobile = isBrowser
-        ? window.matchMedia("(max-width: 800px)").matches
-        : null;
-
     const [sideBarIsOpen, setSidebBarIsOpen] = useState(false);
 
     const openSideBarHandler = () => {
@@ -37,29 +31,25 @@ const Navigation = () => {
                     }}
                 />
             )}
-            {isMobile && sideBarIsOpen && (
-                <Overlay onClick={closeSideBarHandler} />
-            )}
-            {isMobile && (
-                <SideBar show={sideBarIsOpen}>
-                    <div
-                        className="sidebar-header-img"
-                        style={{
-                            height: "150px",
-                            width: "100%",
-                            marginBottom: "2rem",
-                            background: `url(${configs.mainImgURL}) no-repeat`,
-                            border: "1px solid transparent",
-                        }}
-                    ></div>
-                    <nav className="navigation-side">
-                        <NavLink />
-                    </nav>
-                </SideBar>
-            )}
+            {sideBarIsOpen && <Overlay onClick={closeSideBarHandler} />}
+            <SideBar show={sideBarIsOpen}>
+                <div
+                    className="sidebar-header-img"
+                    style={{
+                        height: "150px",
+                        width: "100%",
+                        marginBottom: "2rem",
+                        background: `url(${configs.mainImgURL}) no-repeat`,
+                        border: "1px solid transparent",
+                    }}
+                ></div>
+                <nav className="navigation-side">
+                    <NavLink />
+                </nav>
+            </SideBar>
             <nav className="navigation">
                 <div className="navigation-main">
-                    {isMobile && (
+                    {
                         // hamburger menu
                         <button
                             className="navigation-menu-button"
@@ -69,20 +59,16 @@ const Navigation = () => {
                             <span />
                             <span />
                         </button>
-                    )}
+                    }
                     <Link to="/">
                         <div className="site-logo">
                             <img src={logo} alt="logo"></img>
                             {/* <span>Starfurye</span> */}
                         </div>
                     </Link>
-                    {isMobile ? (
-                        ""
-                    ) : (
-                        <nav className="navigation-tab">
-                            <NavLink />
-                        </nav>
-                    )}
+                    <nav className="navigation-tab">
+                        <NavLink />
+                    </nav>
                     <div className="navigation-links">
                         <Link to="https://github.com/Starfurye">
                             <FaGithub />

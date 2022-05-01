@@ -4,6 +4,7 @@ import { MDXRenderer } from "gatsby-plugin-mdx";
 import { MDXProvider } from "@mdx-js/react";
 import { graphql } from "gatsby";
 import Helmet from "react-helmet";
+import { FaEdit } from "@react-icons/all-files/fa/FaEdit";
 
 import CodeBlock from "../../components/CodeBlock";
 import Header from "../../components/Header";
@@ -22,9 +23,15 @@ const ArticlePost = ({ data }) => {
                     description={data.mdx.frontmatter.brief_description}
                 />
                 <section className="post">
-                    <span className="post-date">
-                        {data.mdx.frontmatter.date}
-                    </span>
+                    <div className="post-metadata">
+                        <div className="post-modified">
+                            <FaEdit />
+                            <span>{data.mdx.parent.modifiedTime}</span>
+                        </div>
+                        <span className="post-date">
+                            {data.mdx.frontmatter.date}
+                        </span>
+                    </div>
 
                     <MDXProvider components={components}>
                         <MDXRenderer>{data.mdx.body}</MDXRenderer>
@@ -44,6 +51,11 @@ export const query = graphql`
                 brief_description
             }
             body
+            parent {
+                ... on File {
+                    modifiedTime(fromNow: true, locale: "zh-CN")
+                }
+            }
         }
     }
 `;
