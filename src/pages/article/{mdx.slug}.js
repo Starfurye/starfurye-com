@@ -29,11 +29,8 @@ const ArticlePost = ({ data }) => {
                         <div className="post-modified">
                             <FaEdit />
                             <span>
-                                {data.mdx.parent.modifiedTime === "0"
-                                    ? "刚刚"
-                                    : "编辑于 " +
-                                      data.mdx.parent.modifiedTime +
-                                      " 天前"}
+                                {"上次编辑于" +
+                                    data.mdx.frontmatter.last_modified}
                             </span>
                         </div>
                         <span className="post-date">
@@ -55,15 +52,11 @@ export const query = graphql`
         mdx(id: { eq: $id }) {
             frontmatter {
                 title
-                date(formatString: "YYYY年M月D日", locale: "zh-CN")
+                date(formatString: "YYYY年M月D日")
                 brief_description
+                last_modified(formatString: "YYYY年M月D日")
             }
             body
-            parent {
-                ... on File {
-                    modifiedTime(locale: "zh-CN", difference: "days")
-                }
-            }
         }
     }
 `;
