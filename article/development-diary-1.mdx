@@ -1,0 +1,113 @@
+---
+title: "博客开发日志 #1"
+categories: ["development"]
+date: "2022-05-02"
+---
+
+## Scroll to top 回到顶部
+
+### View
+
+使用 `react-icons` 的图标。
+
+```js
+// src/components/ScrollToTop.js
+import React from "react";
+import { FaAngleUp } from "@react-icons/all-files/fa/FaAngleUp";
+
+const ScrollToTop = () => {
+    return (
+        <div className="scroll-to-top">
+            <FaAngleUp className="scroll-to-top-icon" />
+        </div>
+    );
+};
+
+export default ScrollToTop;
+```
+
+```css
+.scroll-to-top {
+    position: fixed;
+    width: 3rem;
+    height: 3rem;
+    right: 5%;
+    bottom: 25%;
+    border-radius: 50%;
+    border: 2px solid var(--main-border);
+    background-color: var(--back-color);
+    color: var(--main-border);
+    cursor: pointer;
+}
+.scroll-to-top:hover {
+    background-color: var(--main-border);
+    color: var(--back-color);
+    border: 2px solid transparent;
+}
+.scroll-to-top-icon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+```
+
+添加一个出现动画：
+
+```css
+.scroll-to-top {
+    ...
+    animation: moveicon 1s ease-in-out;
+    transition: all 0.5s ease-in-out;
+}
+@keyframes moveicon {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-40px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+```
+
+## logics
+
+在页面向下滑动一段距离时才显示滑动按钮，我们需要给组件设置一个状态：
+
+```js
+// src/components/ScrollToTop.js
+const [showTopIcon, setShowTopIcon] = useState(false);
+```
+
+点击组件后滑动到顶部：
+
+```js
+const ScrollToTop = () => {
+    ...
+    // 事件只设置一次
+    useEffect(() => {
+        if (isBrowser) {
+            window.addEventListener("scroll", () => {
+                if (window.scrollY > 400) {
+                    setShowTopIcon(true);
+                } else {
+                    setShowTopIcon(false);
+                }
+            });
+        }
+    }, []);
+
+    return (
+        <>
+            {showTopIcon && (
+                <div className="scroll-to-top" onClick={goTop}>
+                    <FaAngleUp className="scroll-to-top-icon" />
+                </div>
+            )}
+        </>
+    );
+}
+```

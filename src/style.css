@@ -123,7 +123,7 @@ main {
     height: var(--navigation-height);
     margin: 0 300px;
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
 }
 .navigation-main a {
@@ -148,6 +148,10 @@ main {
 
 .navigation-menu-button {
     display: none;
+}
+
+.navigation-links {
+    margin-left: 20px;
 }
 
 /* main container */
@@ -448,7 +452,7 @@ pre[class*="language-"] {
         align-items: center;
     }
     .article-list-main a {
-        text-decoration: underline;
+        border-bottom: 1px solid #fff;
     }
     pre[class*="language-"] {
         font-size: 1rem;

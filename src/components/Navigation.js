@@ -7,7 +7,6 @@ import NavLink from "./NavLink";
 import logo from "../assets/galaga-logo.png";
 import Overlay from "./Overlay";
 import SideBar from "./SideBar";
-import configs from "../utils/configs";
 
 import "../style.css";
 
@@ -39,7 +38,7 @@ const Navigation = () => {
                         height: "150px",
                         width: "100%",
                         marginBottom: "2rem",
-                        background: `url(${configs.mainImgURL}) no-repeat`,
+                        background: `url(${"./main-image.jpeg"}) no-repeat`,
                         border: "1px solid transparent",
                     }}
                 ></div>

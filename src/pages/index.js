@@ -11,7 +11,7 @@ const IndexPage = ({ data }) => {
     return (
         <Layout>
             <Helmet title={configs.siteTitle} />
-            <WideHeader title="Starfurye" backImgUrl={configs.mainImgURL} />
+            <WideHeader title="Starfurye" backImgUrl={"main-image.jpeg"} />
             <article className="main-container">
                 <h2 className="section-header">
                     <span>最近的创作</span>
