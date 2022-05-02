@@ -12,14 +12,15 @@ Gatsby 是一个静态网页生成器，在 Node 中无法访问 `document`, `wi
 在做本博客的响应式设计（移动端可以打开侧栏菜单，顶部导航栏由于太挤了需要隐藏导航项）时，我想用以下方法判断媒体类型：
 
 ```js
-let isMobile = isBrowser
-    ? window.matchMedia("(max-width: 800px)").matches
-    : null;
+window.matchMedia("(max-width: 800px)").matches;
 ```
 
 因此在 build 过程中，webpack 报 `window is not defined` 的错。于是我根据这篇[官方文章](https://www.gatsbyjs.com/docs/debugging-html-builds/)做了修改：
 
 ```js
+// 判断 window 是否存在
+const isBrowser = typeof window !== "undefined"
+...
 let isMobile = isBrowser
     ? window.matchMedia("(max-width: 800px)").matches
     : null;
