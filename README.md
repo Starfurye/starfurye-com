@@ -4,7 +4,6 @@ My brand new blog built with Gatsby & React from scratch!
 
 ## TODO list
 
--   Scroll to top
 -   TOC
 -   styling categories
 -   Light mode

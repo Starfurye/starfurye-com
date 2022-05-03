@@ -28,10 +28,7 @@ const ArticlePost = ({ data }) => {
                     <div className="post-metadata">
                         <div className="post-modified">
                             <FaEdit />
-                            <span>
-                                {"上次编辑于" +
-                                    data.mdx.frontmatter.last_modified}
-                            </span>
+                            <span>{data.mdx.frontmatter.last_modified}</span>
                         </div>
                         <span className="post-date">
                             {data.mdx.frontmatter.date}
