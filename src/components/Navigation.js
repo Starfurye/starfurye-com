@@ -38,7 +38,7 @@ const Navigation = () => {
                         height: "150px",
                         width: "100%",
                         marginBottom: "2rem",
-                        background: `url(${"./main-image.jpeg"}) no-repeat`,
+                        background: `url(${"./main-image-side.jpeg"}) no-repeat`,
                         border: "1px solid transparent",
                     }}
                 ></div>
