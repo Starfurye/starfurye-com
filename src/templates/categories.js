@@ -8,7 +8,7 @@ import { ArticleListItem } from "../components/ArticleListItem";
 
 const Categories = ({ pageContext, data }) => {
     const { category } = pageContext;
-    const { edges, totalCount } = data.allMdx;
+    const { edges } = data.allMdx;
     return (
         <Layout>
             <Helmet title={`${category} | Categories`} />
@@ -22,15 +22,6 @@ const Categories = ({ pageContext, data }) => {
                     {edges.map(({ node }) => (
                         <ArticleListItem node={node} prefix="/article/" />
                     ))}
-                    {/* {edges.map(({ node }) => {
-                        const slug = node.slug;
-                        const { title } = node.frontmatter;
-                        return (
-                            <li key={slug}>
-                                <Link to={`/article/${slug}`}>{title}</Link>
-                            </li>
-                        );
-                    })} */}
                 </ul>
             </article>
         </Layout>
@@ -52,6 +43,7 @@ export const categoryQuery = graphql`
                     slug
                     frontmatter {
                         title
+                        brief_description
                         date(formatString: "MMMM D, YYYY")
                     }
                 }

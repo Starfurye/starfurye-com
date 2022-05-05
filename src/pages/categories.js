@@ -1,9 +1,20 @@
 import React from "react";
-import kekabCase from "lodash/kebabCase";
-import { Link, graphql } from "gatsby";
+import { graphql } from "gatsby";
 import Layout from "../components/Layout";
 import Header from "../components/Header";
 import Helmet from "react-helmet";
+
+import CategoryListItem from "../components/CategoryListItem";
+
+const colorsPool = [
+    "#53b3cb",
+    "#F9C22E",
+    "#F15946",
+    "#E01A4F",
+    "#FCDFA6",
+    "#A18276",
+    "#B8DBD9",
+];
 
 const CategoriesPage = ({
     data: {
@@ -20,15 +31,21 @@ const CategoriesPage = ({
             />
             <section>
                 <ul>
-                    {group.map((category) => (
+                    {group.map((category, index) => (
                         <li key={category.fieldValue}>
-                            <Link
+                            {/* <Link
                                 to={`/categories/${kekabCase(
                                     category.fieldValue
                                 )}/`}
                             >
                                 {category.fieldValue} ({category.totalCount})
-                            </Link>
+                            </Link> */}
+                            <CategoryListItem
+                                link={`/categories/${category.fieldValue}/`}
+                                categoryName={category.fieldValue}
+                                count={category.totalCount}
+                                color={colorsPool[index]}
+                            />
                         </li>
                     ))}
                 </ul>
