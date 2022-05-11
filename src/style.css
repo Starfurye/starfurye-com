@@ -253,7 +253,6 @@ section.post h2,
 section.post h3,
 section.post h4,
 section.post h5 {
-    font-size: 150%;
     padding: 5px 0;
     margin: 1rem 0;
     border-bottom: 1px solid var(--main-border);

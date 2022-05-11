@@ -1,0 +1,1165 @@
+---
+title: "拾趣开发日志"
+categories: ["development"]
+date: "2022-02-23"
+last-modified: "2022-05-11"
+brief-description: "拾趣 - 拾取日常生活中的乐趣，是一个可以和每一个人分享生活中拍摄到的乐趣的 Web App"
+---
+
+## 使用技术栈
+
+前端（React），使用的模板为 `react-create-app`：
+
+-   **amap**：高德地图 API，前端使用 js webapi
+-   **axios / fetch**：向后端 / 高德地图 API 发送 ajax 请求
+-   **react-router-dom**：配置前端路由
+
+后端（Express，Nodejs）：
+
+-   **amap**：高德地图 API，后端使用 web 服务 api
+-   **axios / fetch**：向高德地图 API 发送 ajax 请求
+-   **bcryptjs**：对用户的密码加密
+-   **body-parser**：解析 HTTP 请求体的中间件
+-   **express**：Nodejs Web 开发框架
+-   **express-validator**：用户信息的服务端验证
+-   **jsonwebtoken**：创建和验证用户的 token
+-   **multer**：接收存储 `multipart/form-data` 的文件（用户上传的图片）
+-   **uuid**：为图片设置名称
+
+数据库（Mongodb）：
+
+-   **mongoose**：为模型提供了一种直接的，基于 scheme 结构去定义数据模型。它内置数据验证，查询构建，业务逻辑钩子等，方便操作 mongodb
+-   **mongoose-unique-validator**：方便实现属性的唯一约束
+
+## App 设计
+
+### 前端设计
+
+![SPA页面路由设计.png](https://s2.loli.net/2022/03/06/NcWE2phIwYX1GV8.png)
+
+### 后端设计
+
+![API接口设计.png](https://s2.loli.net/2022/03/06/9CkqdF2j6eosALY.png)
+
+## 前端
+
+### 共享元素
+
+#### 组件
+
+表单组件：
+
+|     组件名      |                                          props(children 以外)                                           |                                                备注                                                 |
+| :-------------: | :-----------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------: |
+|   `<Button>`    |            **href**, **to**, size, inverse, danger, exact, type, onClick, disabled, children            |                                  href(链接),to(跳转),default(按钮)                                  |
+|    `<Input>`    | initialValue, initialValid, id, onInput, validators, element, type, placeholder, rows, label, errortext | 输入组件，包括一个引导输入信息的 label，一个输入框（input 或 textarea）和一段判断是否合法的错误信息 |
+| `<ImageUpload>` |                                     onInput, id, center, errortext                                      |                 图片上传组件，包括一个隐藏的 input，一个图片预览框，一个上传 Button                 |
+
+导航组件：
+
+|       组件名       | props(children 以外) |                                              备注                                               |
+| :----------------: | :------------------: | :---------------------------------------------------------------------------------------------: |
+|   `<MainHeader>`   |     仅 children      |                                      桌面端顶部导航栏外壳                                       |
+|   `<SideDrawer>`   |     show,onClick     | 移动端侧面导航栏，包括一个带动画的侧栏，通过 `createPortal()` 直接挂载到直接父组件 DOM 层次之外 |
+|    `<NavLinks>`    |     仅 children      |                                    根据登录状况配置路由链接                                     |
+| `<MainNavigation>` |     仅 children      |   包含顶部导航栏或侧面导航栏（移动端，通过 `@media` 实现），导航栏内包含链接组件 `<NavLinks>`   |
+
+UI 组件：
+
+|          组件名           |                                        props(children 以外)                                        |                                                                              备注                                                                              |
+| :-----------------------: | :------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+|        `<Avatar>`         |                                className, style, image, alt, width                                 |                                                                   用户头像组件，包括头像图片                                                                   |
+|       `<Backdrop>`        |                                              onClick                                               | 侧边栏或 Modal 打开时的空白处，z-index 小于侧边栏或 Modal，但大于一般元素，点击可以关闭侧边栏或 Modal，通过 `createPortal()` 直接挂载到直接父组件 DOM 层次之外 |
+|         `<Card>`          |                                             className                                              |                                                                      用户或地点的卡片外壳                                                                      |
+|    `<LoadingSpinner>`     |                                             asOverlay                                              |                                                                            载入旋转                                                                            |
+|          `<Map>`          |                                            center, zoom                                            |                                                                          高德地图组件                                                                          |
+| `<Modal>, <ModalOverlay>` | className, style, headerClass, header, onSubmit, contentClass, footerClass, footer, show, onCancel |                                 模态框，包括一个标题`<header>`，一个表单，表单内分为主要部分（显示交互信息）和底部（放置按钮）                                 |
+|      `<ErrorModal>`       |                                           onClear, error                                           |                                                    可复用的出错模态框，在`<Modal>`的底部放置了一个关闭按钮                                                     |
+
+#### Context
+
+用于存储和全局共享用户的登录信息：
+
+```js
+export const AuthContext = createContext({
+    isLoggedIn: false,
+    userId: null,
+    token: null,
+    login: () => {},
+    logout: () => {},
+});
+```
+
+#### 自定义 hook
+
+http-hook：
+
+包括 `isLoading`（正在载入），`error`（网络出错）两个多处都要用到的 state，和一个发送请求的方法 `sendRequest`（使用 useCallback，避免多次渲染）及一个清除错误的方法 `clearError`。
+
+form-hook：
+
+`formState` 将表单信息作为 state 存储，并提供 `inputHandler` 监听 `formState` 的更改，`setFormData` 在切换登录和注册时自动填充信息。
+
+#### 验证器
+
+`validators.js` 通过 `validators` 的类型验证 `value` 是否合法。
+
+### 地点
+
+组件：
+
+-   `PlaceList.js`：地点列表
+-   `PlaceItem.js`：地点组件，包含一个地点 `<Card />`
+
+页面：
+
+-   `UserPlaces.js`：显示用户添加的所有地点
+-   `NewPlace.js`：新增地点
+-   `UpdatePlace.js`：更新地点
+
+### 用户
+
+组件：
+
+-   `UserItem.js`：用户 `<Card />`，包括用户头像和地点个数
+-   `UsersList.js`：用户列表，包含所有用户
+
+页面：
+
+-   `User.js`：主页，显示所有用户，从后端拉取所有用户信息
+-   `Auth.js`：用户认证界面（注册或登录）
+
+## 后端
+
+业务逻辑分离：
+
+-   `app.js`: 注册中间件和路由，连接数据库，监听端口。
+-   `places-routes.js`, `users-routes.js`: 配置路由。
+-   `places-controllers.js`, `users-controllers.js`: 具体 API 接口实现。
+
+### 流程
+
+1. 创建基本路由
+
+2. 编写自定义 http 错误中间件
+
+3. 编写 API：在路由文件里注册一条路由 -> 在 controller 文件里编写详细的业务逻辑并暴露接口
+
+4. 验证用户输入：使用 `express-validator` 确保前端发来的用户信息合法
+
+5. 调用地图 API 将地址转换为经纬度信息。
+
+6. 避开使用 Mongodb 自带 driver 的复杂性（连接-操作-关闭连接），使用 Mongoose 连接 Mongodb
+
+7. 创建地点和用户的数据模型 `user.js`， `place.js`，用户的 email 是唯一的
+
+8. 连接数据库，改写前面的逻辑
+
+9. 处理数据模型之间的联系（一对多）
+
+## 连接前端和后端
+
+### 在前端向后端发送 POST 请求
+
+#### 用户登录
+
+Frontend:
+
+1. 修改 `Auth.js` 内的 `authSubmitHandler()` 为异步函数，在该函数内利用 `axios` 模块向后端（`http://localhost:5000/api/users/signup`）发送 `POST` 请求，请求体内包括 `name`, `email`, `password` 这些必要信息，设置请求头的 `Content-Type` 为 `application/json`。
+
+2. 新增`state`： `isLoading` 和 `error`，分别处理提交登录信息后显示载入画面和登录失败的情况，提高用户体验。在 `Auth` 组件中添加 `ErrorModal` 和 `LoadingSpinner`，这两个组件会根据前面的两个状态来决定是否显示：
+
+```js
+<React.Fragment>
+    <ErrorModal error={error} onClear={errorHandler} />
+    <Card className="authentication">
+        {isLoading && <LoadingSpinner asOverlay />}
+        <h2>Login Required</h2>
+        ...
+```
+
+添加用户登录请求：
+
+```js
+const authSubmitHandler = async (event) => {
+        event.preventDefault();
+        setIsLoading(true);
+        if (isLoginMode) {
+            axios
+                .post(
+                    ...
+```
+
+Backend:
+
+2. 设置允许跨域，添加中间件：
+
+```js
+app.use((req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    );
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
+    next();
+});
+```
+
+#### 显示所有用户
+
+Frontend:
+
+在 `User.js` 内发送 GET 请求，和上面的类似，加入 `isLoading`, `error`, `loadedUsers` 状态，添加 `ErrorModal` 和 `LoadingSpinner`组件。
+
+#### 重构
+
+在 `Users` 和 `Auth` 两个模块里我们使用了大量重复的代码来发送 http 请求：
+
+```js
+const [isLoading, setIsLoading] = useState(false);
+const [error, setError] = useState(null);
+...
+setIsLoading(true);
+axios
+    .get("http://127.0.0.1:5000/api/users/")
+    .then((response) => {
+        if (!(response.status >= 200 && response.status < 300)) {
+            throw new Error(response.data.message);
+        }
+        setLoadedUsers(response.data.users);
+    })
+    .catch((err) => {
+        setError(err.message);
+    });
+setIsLoading(false);
+...
+```
+
+可以新建一个自定义的 http-hook 来重构这些代码，它返回 `isLoading`, `error` 这两个状态和 `sendRequest`, `clearError` 两个函数.
+
+#### 新增地点
+
+利用上面的 hook 修改 `placeSubmitHandler` 函数，并使用 `useHistory` 使提交后重定向到根目录。
+
+#### 获取某用户的地点
+
+利用上面的 hook 修改 `UserPlaces.js` 里的 `placeSubmitHandler` 函数.
+
+#### 修改地点
+
+修改 `UpdatePlace.js` 中的 `placeUpdateSubmitHandler`，最后需要重定向回用户的所有地点，可以通过 `useContext` 取出 `userId`。
+
+#### 删除地点
+
+修改 `PlaceItem.js` 内的 `confirmDeleteHandler` 函数，此外还要修改 `UserPlaces.js` 内的 `loadedPlaces` 状态，因为该组件内的 `useEffect` 确保状态只在进入该页面的时候设置一次：
+
+```js
+useEffect(() => {
+    const fetchPlaces = async () => {
+        try {
+            const responseData = await sendRequest(
+                `http://127.0.0.1:5000/api/places/user/${userId}`
+            );
+            setLoadedPlaces(responseData.places);
+            ...
+```
+
+#### npm 包版本问题
+
+添加地点时后端总是返回 `500` 状态码，原来是 `mongoose-unique-validator` 这个包的问题，降级到 `2.0.3`即可，注意顺序：
+
+1. 卸载 `mongoose-unique-validator`，
+2. 卸载 `mongoose`，
+3. 安装 `mongoose@5.13.14`，
+4. 安装 `mongoose-unique-validator@2.0.3`。
+
+### 文件上传
+
+#### 用户头像
+
+Frontend:
+
+用户在注册时和上传地点时都应该可以上传照片。
+
+新建一个组件 `ImageUpload.js`，使用一个看不见的 input 元素做图片上传：
+
+```js
+const filePickerRef = useRef();
+...
+<input
+    type="file"
+    ref={filePickerRef}
+    id={props.id}
+    style={{ display: "none" }}
+    accept=".jpg,.png,.jpeg"
+    onChange={pickedHandler}
+/>
+```
+
+由于使用了 `useRef` ，下面的按钮组件可以调用这个表单元素：
+
+```js
+const pickImageHandler = () => {
+    filePickerRef.current.click();
+};
+...
+<Button type="button" onClick={pickImageHandler}>
+    选取图片
+</Button>
+```
+
+在登录组件里添加 `ImageUpload`：
+
+```js
+...
+{!isLoginMode && (
+    <Input
+        element="input"
+        id="name"
+        type="text"
+        label="起个昵称"
+        validators={[VALIDATOR_REQUIRE()]}
+        errorText="Please enter a name."
+        onInput={inputHandler}
+    />
+)}
+{!isLoginMode && <ImageUpload center id="image" />}
+```
+
+使用浏览器提供的 `FileReader` 可以读取图片文件：
+
+```js
+useEffect(() => {
+    if (!file) {
+        return;
+    }
+    const fileReader = new FileReader();
+    fileReader.onload = () => {
+        // readAsDataURL 将会调用该函数
+        setPreviewUrl(fileReader.result);
+    };
+    fileReader.readAsDataURL(file);
+}, [file]);
+```
+
+由于图片不是 json（文本）数据，我们不能用 `application/json` 来发送，可以通过 `formData` 简单生成二进制数据：
+
+```js
+// auth.js
+const formData = new FormData();
+formData.append("email", formState.inputs.email.value);
+formData.append("name", formState.inputs.name.value);
+formData.append("password", formState.inputs.password.value);
+formData.append("image", formState.inputs.image.value);
+const responseData = await sendRequest(
+    "http://localhost:5000/api/users/signup",
+    "POST",
+    formData
+);
+```
+
+`UserItem` 组件需要更改，以显示正确的头像：
+
+```js
+<Avatar image={`http://127.0.0.1:5000/${props.image}`} alt={props.name} />
+```
+
+`PlaceItem` 组件需要更改，以显示正确的图片。这里的 `props.image` 是包含了 `/uploads/images/` 前缀的相对路径：
+
+```js
+<div className="place-item__image">
+    <img src={`http://127.0.0.1:5000/${props.image}`} alt={props.title} />
+</div>
+```
+
+Backend:
+
+1. 新建 `file-upload.js`，使用 `multer` 这个中间件（组）来接收文件：
+
+```js
+const fileUpload = multer({
+    limits: 500000, // 文件大小限制
+    storage: multer.diskStorage({
+        // 存储路径
+        destination: (req, file, callback) => {
+            callback(null, "uploads/images");
+        },
+        // 文件名
+        filename: (req, file, callback) => {
+            const extention = MIME_TYPE_MAP[file.mimetype];
+            callback(null, uuidv1() + "." + extention); // uuidv1使用时间戳作为id
+        },
+    }),
+    fileFilter: (req, file, callback) => {
+        // 筛选合法文件
+        const isValid = !!MIME_TYPE_MAP[file.mimetype]; // !! 将 undefined 和 null 转化为false
+        let error = isValid ? null : new Error("Invalid mime type!");
+        callback(error, isValid);
+    },
+});
+```
+
+2. 在路由文件 `users-routes.js` 里加入中间件：
+
+```js
+router.post(
+    "/signup",
+    // 这里的 image 指的是请求体里的 image 键
+    fileUpload.single("image"),
+    [
+    ...
+```
+
+3. 当出现错误时，需要删除用户上传的文件，在 `app.js` 的全局错误中间件中加入：
+
+```js
+// 全局的错误处理中间件
+app.use((error, req, res, next) => {
+    if (req.file) {
+        // 出错时删除用户上传的图片
+        fs.unlink(req.file.path, (err) => {
+            console.log(err);
+        });
+    }
+    ...
+```
+
+4. 创建用户时 `image` 从默认值修改为：
+
+```js
+// users-controllers.js
+const createdUser = new User({
+    name,
+    email,
+    image: req.file.path,
+    password,
+    places: [],
+});
+```
+
+5. 然而通过修改前端代码中图片的路径：
+
+> `UserItem` 组件也需要更改，以显示正确的头像：
+
+在所有用户界面下，依然无法显示正确的用户头像，因为 `express` 不允许用户访问没有注册路由的文件（网址），比如用户不能在浏览器里输入地址访问 `http://127.0.0.1:5000/app.js` 这一文件。需要通过新增中间件来允许用户访问这些图片：
+
+```js
+app.use("/uploads/images", express.static(path.join("uploads", "images")));
+```
+
+`express` 的 `static` 中间件会直接返回文件。
+
+#### 上传地点图片
+
+1. 同样在 `NewPlace.js` 中修改：
+
+```js
+const [formState, inputHandler] = useForm(
+{
+    ...
+    address: {
+        value: "",
+        isValid: false,
+    },
+    image: { value: null, isValid: false },
+},
+...
+const formData = new FormData();
+formData.append("title", formState.inputs.title.value);
+formData.append("description", formState.inputs.description.value);
+formData.append("address", formState.inputs.address.value);
+formData.append("creator", auth.userId);
+formData.append("image", formState.inputs.image.value);
+await sendRequest(
+    "http://127.0.0.1:5000/api/places",
+    "POST",
+    formData
+);
+...
+<ImageUpload
+    id="image"
+    onInput={inputHandler}
+    errorText="请选取一张照片"
+/>
+<Button type="submit" disabled={!formState.isValid}>
+    ADD PLACE
+</Button>
+...
+```
+
+2. 在路由文件 `places-routes.js` 里加入中间件：
+
+```js
+router.post(
+    "/",
+    fileUpload.single("image"),
+    [
+    ...
+```
+
+3. 当出现错误时，需要删除用户上传的文件，在前面的添加用户照片步骤中已经完成。创建地点时 `image` 从默认值修改为：
+
+```js
+const createdUser = new User({
+    name,
+    email,
+    image: req.file.path,
+    password,
+    places: [],
+});
+```
+
+### 当用户删除图片时，删除存储的图片
+
+在 `places-controllers.js` 中：
+
+```js
+const imagePath = deletedPlace.image;
+
+try {
+    const session = await mongoose.startSession();
+    ...
+
+fs.unlink(imagePath, (err) => {
+    console.log(err);
+});
+```
+
+### 认证和授权
+
+使用 `bcryptjs` 将密码哈希为一个不可逆的字符串。
+
+```js
+// users-controllers.js
+let hashedPassword;
+try {
+    hashedPassword = await bcryptjs.hash(password, 12);
+} catch {
+    return next(new HttpError("无法创建用户，请重试", 500));
+}
+
+const createdUser = new User({
+    ...
+    password: hashedPassword,
+    places: [],
+});
+```
+
+在登录函数中使用 `bcryptjs.compare()` 来比较明文和加密密码是否一致：
+
+```js
+const login = async (req, res, next) => {
+    ...
+    if (!identifiedUser) return next(new HttpError("用户名或密码错误"), 401);
+
+    let isValidPassword = false;
+    try {
+        isValidPassword = await bcryptjs.compare(
+            password,
+            identifiedUser.password
+        );
+    } catch {
+        return next(new HttpError("登录失败，请检查用户名或密码", 500));
+    }
+
+    if (!isValidPassword) return next("用户名或密码错误", 401);
+    ...
+```
+
+#### 生成 Token
+
+使用 `jsonwebtoken` 为登录用户生成 token：
+
+```js
+const signup = async (req, res, next) => {
+    ...
+    let token;
+    try {
+        token = jwt.sign(
+            { userId: createdUser.id, email: createdUser.email },
+            secret.KEY,
+            { expiresIn: "12h" }
+        );
+    } catch {
+        return next(new HttpError("创建用户失败"), 500);
+    }
+
+    res.status(201).json({
+        // user: createdUser.toObject({ getters: true }),
+        userId: createdUser.id,
+        email: createdUser.email,
+        token,
+    });
+}
+
+const login = async (req, res, next) => {
+    ...
+    let token;
+    try {
+        token = jwt.sign(
+            { userId: identifiedUser.id, email: identifiedUser.email },
+            secret.KEY,
+            { expiresIn: "12h" }
+        );
+    } catch {
+        return next(new HttpError("登录失败"), 500);
+    }
+
+    res.json({
+        // message: "登录成功!",
+        // user: identifiedUser.toObject({ getters: true }),
+        userId: existingUser.id,
+        email: existingUser.email,
+        token,
+    });
+}
+```
+
+#### 验证 token
+
+在生成 token 以后，我们需要确保用户的每个除允许外的（如获取所有用户）操作都有合法的 token，比如用户添加或删除地点时必须提供正确的 token。
+
+添加中间件来验证 token，这里我们通过判断相应头里的 `authorization` 来检查 token：
+
+```js
+// check-auth.js
+module.exports = (req, res, next) => {
+    try {
+        // Authorization: 'Bearer TOKEN'
+        const token = req.headers.authorization.split(" ")[1];
+        if (!token) throw new Error("验证失败");
+        const decodedToken = jwt.verify(token, secret.KEY);
+        req.userData = {
+            userId: decodedToken.userId,
+            email: decodedToken.email,
+        };
+        next();
+    } catch {
+        return next(new HttpError("验证失败", 401));
+    }
+};
+```
+
+```js
+// places-routes.js
+// 检查 token
+router.use(checkAuth);
+router.post(
+    "/",
+    ...
+```
+
+#### 在前端请求中携带 token
+
+由于修改了响应体结构，需要更改前端的登录信息：
+
+```js
+// auth.js
+auth.login(responseData.userId, responseData.token);
+```
+
+登录时需要记录后端发来的 token：
+
+```js
+// app.js
+const App = () => {
+    // const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [token, setToken] = useState(null);
+    const [userId, setUserId] = useState(false);
+
+    const login = useCallback((uid, token) => {
+        setToken(token);
+        setUserId(uid);
+    }, []);
+    const logout = useCallback(() => {
+        setToken(null);
+        setUserId(null);
+    }, []);
+    ...
+    if (token) {
+        routes = (
+    ...
+    return (
+        <AuthContext.Provider
+            value={{
+                isLoggedIn: !!token,
+                token,
+                userId,
+                login: login,
+                logout: logout,
+            }}
+        >
+        ...
+```
+
+```js
+// auth-context.js
+export const AuthContext = createContext({
+    ...
+    token: null,
+    ...
+});
+```
+
+#### 使用 token
+
+##### 新增地点
+
+```js
+// NewPlace.js
+const placeSubmitHandler = async (event) => {
+    ...
+    await sendRequest(
+        "http://127.0.0.1:5000/api/places",
+        "POST",
+        formData,
+        { Authorization: "Bearer " + auth.token }
+    );
+    ...
+}
+```
+
+浏览器会自动发送 OPTIONS 请求，需要在后端允许这一请求：
+
+```js
+// check-auth.js
+module.exports = (req, res, next) => {
+    if (req.method === "OPTIONS") return next();
+    ...
+}
+```
+
+##### 更新
+
+```js
+// UpdatePlace.js
+const placeUpdateSubmitHandler = async (event) => {
+    ...
+    {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + auth.token,
+    }
+    ...
+}
+```
+
+##### 删除
+
+```js
+// PlaceItem.js
+const confirmDeleteHandler = async () => {
+    ...
+    {
+        Authorization: "Bearer " + auth.token,
+    }
+    ...
+```
+
+#### 后端用户认证
+
+在前端，我们通过判断当前用户 id 是否等于地点的创作者 id 来决定是否允许当前用户更改当前地点信息，或是删除当前地点。然而没有在后端对地点和用户进行验证，如果用户不通过浏览器而是利用另一个用户的 id 和其合法 token 直接发送（如 postman）请求，后端也会执行操作。
+
+由于之前 `check-auth` 中间件在请求里放入了用户 id：
+
+```js
+// check-auth.js
+req.userData = {
+    userId: decodedToken.userId,
+    email: decodedToken.email,
+};
+next();
+```
+
+我们可以直接利用：
+
+```js
+// places-controllers.js
+const updatePlace = async (req, res, next) => {
+    ...
+    // updatePlace.creator 是一个 mongoose 对象，不能直接和字符串比较
+    if (updatePlace.creator.toString() !== req.userData.userId)
+            return next(new HttpError("没有修改地点权限", 401));
+    updatedPlace.title = title;
+    updatedPlace.description = description;
+    ...
+}
+
+const deletePlace = async (req, res, next) => {
+    ...
+    if (deletePlace.creator.id !== req.userData.userId)
+        return next(new HttpError("没有删除地点权限", 401));
+
+    const imagePath = deletedPlace.image;
+    ...
+}
+```
+
+#### 保持登录
+
+由于当前的登录信息都存在 `authContext` 里（即内存中），一旦重新打开网页，这些信息就会消失。所以需要采用浏览器的 localStorage 来进行持续存储：
+
+```js
+// app.js
+const login = useCallback((uid, token) => {
+    ...
+    localStorage.setItem(
+        "userData",
+        JSON.stringify({
+            userId: uid,
+            token,
+        })
+    );
+}, []);
+const logout = useCallback(() => {
+    ...
+    localStorage.removeItem("userData");
+}, []);
+```
+
+接下来我们需要利用存储的登录信息进行自动登录：
+
+```js
+// app.js
+// 自动登录
+useEffect(() => {
+    const storedData = JSON.parse(localStorage.getItem("userData"));
+    if (storedData && storedData.token) {
+        login(storedData.userId, storedData.token);
+    }
+}, [login]);
+
+let routes = null;
+    if (token) {
+        routes = (
+            <Switch>
+            ...
+```
+
+此外还要考虑 token 的有效期，后端定义的 token 有效期为 12h：
+
+```js
+// users-controllers.js
+token = jwt.sign(
+    { userId: identifiedUser.id, email: identifiedUser.email },
+    secret.KEY,
+    { expiresIn: "12h" }
+);
+```
+
+我们需要在用户登录时计算 token 的过期时间（即当前时间加上 12h）：
+
+```js
+// App.js
+const login = useCallback((uid, token, expirationDate) => {
+    setToken(token);
+    setUserId(uid);
+
+    const tokenExpDate =
+        expirationDate || new Date(new Date().getTime() + 12 * 3600 * 1000);
+
+    localStorage.setItem(
+        "userData",
+        JSON.stringify({
+            userId: uid,
+            token,
+            expiration: tokenExpDate.toISOString(),
+        })
+    );
+}, []);
+```
+
+登录时我们需要判断已存在的 token 的过期时间是否晚于当前时间，来决定是否让用户自动登录（注意 token 还未过期时不会使用新的 token）：
+
+```js
+// 自动登录
+useEffect(() => {
+    const storedData = JSON.parse(localStorage.getItem("userData"));
+    if (
+        storedData &&
+        storedData.token &&
+        new Date(storedData.expiration) > new Date()
+    ) {
+        login(
+            storedData.userId,
+            storedData.token,
+            new Date(storedData.expiration)
+        );
+    }
+}, [login]);
+```
+
+#### token 过期时自动登出
+
+创建一个新的计时器，利用 `useEffect`，每当 token 变化时——在登录时设置定时器，在登出时清除计时器：
+
+```js
+// App.js
+let logoutTimer;
+const App = () => {
+    ...
+    const [tokenExpirationDate, setTokenExpirationDate] = useState(null);
+    const login = useCallback((uid, token, expirationDate) => {
+        ...
+        const tokenExpDate =
+            expirationDate || new Date(new Date().getTime() + 12 * 3600 * 1000);
+
+        setTokenExpirationDate(tokenExpDate);
+        ...
+    }, []);
+    const logout = useCallback(() => {
+        setToken(null);
+        setTokenExpirationDate(null);
+        setUserId(null);
+        localStorage.removeItem("userData");
+    }, []);
+    ...
+    useEffect(() => {
+        if (token && tokenExpirationDate) {
+            const remainingTime =
+                tokenExpirationDate.getTime() - new Date().getTime();
+            logoutTimer = setTimeout(logout, remainingTime);
+        } else {
+            clearTimeout(logoutTimer);
+        }
+    }, [token, logout, tokenExpirationDate]);
+```
+
+#### optional 自定义 hook useAuth 重构
+
+### 整体优化
+
+#### Backend
+
+```js
+// places-controllers.js
+const createPlace = async (req, res, next) => {
+    ...
+    // const { title, description, address, creator } = req.body; 不要用前端给的信息
+    const { title, description, address } = req.body;
+    ...
+    const createdPlace = new Place({
+        title,
+        description,
+        address,
+        location: coordinates,
+        image: req.file.path,
+        creator: req.userData.userId,               // 使用不可伪造的 token
+    });
+
+    let user = null;
+    try {
+        user = await User.findById(req.userData.userId);
+        ...
+    }
+    ...
+}
+```
+
+#### Frontend
+
+前端也做相应改变，因为后端已经不再需要前端提供的创作者信息：
+
+```js
+// NewPlace.js
+const placeSubmitHandler = async (event) => {
+    event.preventDefault();
+    try {
+        const formData = new FormData();
+        formData.append("title", formState.inputs.title.value);
+        formData.append("description", formState.inputs.description.value);
+        formData.append("address", formState.inputs.address.value);
+        // formData.append("creator", auth.userId);
+        ...
+    }
+    ...
+}
+```
+
+### 部署项目
+
+#### 后端环境变量
+
+新建 `nodemon.json`，配置开发时的环境变量:
+
+```json
+{
+    "env": {
+        "DB_USER": "star",
+        "DB_PASSWORD": "...",
+        "DB_NAME": "mern",
+        "AMAP_API_KEY": "...",
+        "JWT_KEY": "..."
+    }
+}
+```
+
+修改 `App.js`：
+
+```js
+mongoose.connect(
+    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.2m5lf.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
+)
+...
+```
+
+修改 `location.js`：
+
+```js
+// 高德地图Web服务Api
+const WEB_SERVICE_API = process.env.AMAP_API_KEY;
+```
+
+删除原来的 `secret.js`，将各个文件中引用到 `secret.KEY` 的地方改为 `process.env.JWT_KEY`。
+
+#### 前端环境变量
+
+当前开发环境下，前端向 `127.0.0.1:5000` 发送请求，可以尝试使用其他设备访问 `子网内ip:3000` 会发现获取不了信息，因为显然后端没有在其他设备的 5000 端口上运行。
+
+在前端，我们需要保存四个键值对——地图 API 和后端 API 地址，以及后端资源地址，对于高德 API，还需要一个安全码，在根目录新建 `.env` 文件：
+
+```env
+REACT_APP_AMAP_JSAPI_KEY=...
+REACT_APP_AMAP_SEC_CODE=...
+REACT_APP_BACKEND_URL=http://localhost:5000/api
+REACT_APP_ASSET_URL=http://localhost:5000
+```
+
+在 `index.html` 中注入，使用双百分号：
+
+```html
+<script type="text/javascript">
+    window._AMapSecurityConfig = {
+        securityJsCode: "%REACT_APP_AMAP_SEC_CODE%",
+    };
+</script>
+```
+
+在 `map.js` 中注入，使用和后端一样的方式：
+
+```js
+const Map = (props) => {
+    useEffect(() => {
+        let map = null;
+        AMapLoader.load({
+            key: process.env.REACT_APP_AMAP_JSAPI_KEY,
+            ...})
+            ...
+    })
+    ...
+}
+```
+
+然后将所有 `http://localhost:5000/api` 或 `http://127.0.0.1:5000/api` 更改为 `process.env.REACT_APP_BACKEND_URL`，将所有 `http://localhost:5000` 改为 `process.env.REACT_APP_ASSET_URL`。
+
+#### 生产环境配置
+
+新建环境配置文件 `.env.production`，这些配置会在执行 `npm run build` 时引入：
+
+```env
+REACT_APP_AMAP_JSAPI_KEY=...
+REACT_APP_AMAP_SEC_CODE=...
+REACT_APP_BACKEND_URL=http://localhost:5000/api
+REACT_APP_ASSET_URL=http://localhost:5000
+```
+
+这里我们使用一组和开发环境不同的生产用 API。
+
+##### 代码分割和懒加载
+
+用户访问网页时一般不需要获取所有的文件，比如用户在登录前不需要从服务器获取 `新建地点` 和 `删除地点` 这些 js 文件，此时我们就不需要给浏览器发送这些资源。
+
+```js
+// App.js
+
+import React, { useState, useCallback, useEffect, Suspense } from "react";
+// import Users from "./user/pages/Users";
+// import NewPlace from "./places/pages/NewPlace";
+// import UserPlaces from "./places/pages/UserPlaces";
+// import UpdatePlace from "./places/pages/UpdatePlace";
+// import Auth from "./user/pages/Auth";
+const Users = React.lazy(() => import("./user/pages/Users"));
+const NewPlace = React.lazy(() => import("./places/pages/NewPlace"));
+const UserPlaces = React.lazy(() => import("./places/pages/UserPlaces"));
+const UpdatePlace = React.lazy(() => import("./places/pages/UpdatePlace"));
+const Auth = React.lazy(() => import("./user/pages/Auth"));
+...
+    return (
+        ...
+        <Router>
+            <MainNavigation />
+            <main>
+                <Suspense
+                    fallback={
+                        <div className="center">
+                            <LoadingSpinner />
+                        </div>
+                    }
+                >
+                    {routes}
+                </Suspense>
+            </main>
+        </Router>
+        ...
+    );
+};
+```
+
+使用 `lazy()` 可以在组件被调用时才导入所需文件，然后利用 React 的 Suspense，设置其回调函数，使得懒加载用时过久时返回一个加载组件。使用 `lazy()` 后，React 会为我们做更合适的 chunk 分割。
+
+#### 两种部署方法
+
+1. 使用两台服务器，一台静态服务器只提供 HTML，CSS，JS 等静态资源，另一台服务器部署 Nodejs，这种方式可能需要配置 CORS。此外后端可以复用，分离部署还可以提高渲染速度和安全性；
+2. 合并 App，Nodejs 服务器同时也提供 React App 渲染，无需配置 CORS。
+
+##### 分离部署
+
+###### Heroku 部署 RESTful API：
+
+修改 `package.json`，Heroku 会调用 node 而不是 nodemon 来执行：
+
+```js
+"scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+},
+```
+
+此时我们定义的开发环境下的 `nodemon.json` 不会起作用，我们可以在 Heroku 的配置页面（Config Vars）中添加环境变量（注意 Mongodb 需要新建用户和 collection，地图 API 都要使用生产环境下的）。
+
+最后使用 `git push heroku main` 提交到 heroku。
+
+此外我们还要修改监听地址：
+
+```js
+// App.js
+app.listen(process.env.PORT || 5000, ...)
+```
+
+`PORT` 是 Heroku 提供的一个监听端口。
+
+然后利用 git 部署到 Heroku。
+
+###### Vercel 部署 React App
+
+修改生产环境的环境变量为 Heroku 提供的域名：
+
+```env
+...
+REACT_APP_BACKEND_URL=https://shiqv.herokuapp.com/api
+REACT_APP_ASSET_URL=https://shiqv.herokuapp.com/
+```
+
+首先使用 `server` 这一 npm 包来检验静态资源是否可以成功连接上面的 RESTful API：
+
+```shell
+$npm i -g serve
+```
+
+然后安装 `Vercel CLI`：
+
+```shell
+$npm i -g vercel
+```
+
+接着在命令行启动 vercel，按照步骤完成部署。最后需要在 vercel 控制台界面加入生产环境的环境变量。
