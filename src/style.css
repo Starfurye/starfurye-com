@@ -346,6 +346,7 @@ pre[class*="language-"] {
     cursor: pointer;
     animation: moveicon 1s ease-in-out;
     transition: all 0.5s ease-in-out;
+    z-index: 30;
 }
 .scroll-to-top:hover {
     background-color: var(--main-border);
