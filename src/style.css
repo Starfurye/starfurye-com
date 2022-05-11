@@ -255,7 +255,7 @@ section.post h4,
 section.post h5 {
     padding: 5px 0;
     margin: 1rem 0;
-    border-bottom: 1px solid var(--main-border);
+    border-bottom: 1px solid var(--small-font-color);
 }
 section.post a {
     font-weight: 700;
@@ -479,10 +479,9 @@ pre[class*="language-"] {
     section.post h3,
     section.post h4,
     section.post h5 {
-        font-size: 150%;
         padding: 5px 0;
         margin: 1rem 0;
-        border-bottom: 1px solid var(--main-border);
+        border-bottom: 1px solid var(--small-font-color);
     }
     article.post a {
         font-weight: 700;

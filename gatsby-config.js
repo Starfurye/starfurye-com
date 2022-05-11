@@ -1,7 +1,7 @@
 module.exports = {
     siteMetadata: {
         title: `Starfurye`,
-        siteUrl: `https://www.yourdomain.tld`,
+        siteUrl: `https://www.starfurye.com`,
     },
     plugins: [
         "gatsby-plugin-react-helmet",
@@ -15,11 +15,27 @@ module.exports = {
             },
         },
         {
+            resolve: "gatsby-source-filesystem",
+            options: {
+                name: `image`,
+                path: `${__dirname}/image`,
+            },
+        },
+        "gatsby-remark-images",
+        {
             resolve: `gatsby-plugin-mdx`,
             options: {
                 remarkPlugins: [require("remark-math")],
                 rehypePlugins: [
                     [require("rehype-katex"), { strict: "ignore" }],
+                ],
+                gatsbyRemarkPlugins: [
+                    {
+                        resolve: `gatsby-remark-images`,
+                        options: {
+                            maxWidth: 900,
+                        },
+                    },
                 ],
             },
         },
