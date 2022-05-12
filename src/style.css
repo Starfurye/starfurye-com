@@ -468,7 +468,7 @@ pre[class*="language-"] {
         align-items: center;
     }
     .article-list-main a {
-        border-bottom: 1px solid #fff;
+        border-bottom: 1px solid var(--small-font-color);
     }
     pre[class*="language-"] {
         font-size: 1rem;
