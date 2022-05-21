@@ -2,7 +2,7 @@
 title: "博客开发日志 #1"
 categories: ["development"]
 date: "2022-05-02"
-last-modified: "2022-05-02"
+last-modified: "2022-05-21"
 ---
 
 ## Scroll to top 回到顶部
@@ -111,4 +111,189 @@ const ScrollToTop = () => {
         </>
     );
 }
+```
+
+## Table of Contents
+
+### 添加 TOC
+
+安装 `react-scrollspy` 和 `gatsby-remark-autolink-headers`:
+
+```shell
+$npm install @makotot/ghostui gatsby-remark-autolink-headers
+```
+
+在 `gatsby-config.js` 里添加配置：
+
+```js
+{
+    resolve: `gatsby-plugin-mdx`,
+    options: {
+        ...
+        gatsbyRemarkPlugins: [
+            ...
+            {
+                resolve: "gatsby-remark-autolink-headers",
+                options: {
+                    className: `header-anchor`,
+                },
+            },
+        ],
+    },
+},
+```
+
+修改查询语句：
+
+```js
+query ($id: String) {
+    mdx(id: { eq: $id }) {
+        frontmatter {
+            title
+            date(formatString: "YYYY年M月D日")
+            brief_description
+            last_modified(formatString: "YYYY年M月D日")
+        }
+        body
+        tableOfContents
+    }
+}
+```
+
+新建一个 Toc 组件：
+
+```js
+// Toc.js
+import React from "react";
+
+const Toc = ({ headers }) => {
+    return (
+        <nav className="toc-side">
+            {headers.items.map((p) => (
+                <li key={p.url}>
+                    <a href={p.url}>{p.title}</a>
+                </li>
+            ))}
+        </nav>
+    );
+};
+
+export default Toc;
+```
+
+将查询到的数据引入组件：
+
+```js
+<Toc headers={data.mdx.tableOfContents} />  // add
+<MDXProvider components={components}>
+    <MDXRenderer>{data.mdx.body}</MDXRenderer>
+</MDXProvider>
+```
+
+添加后 Toc 会显示在文章头部，接下来需要通过 CSS 将其显示到侧边并添加样式。
+
+### styling & 随进度变化的 TOC
+
+给 TOC 和各个 header 的锚点添加样式，让它**固定定位**到右边：
+
+```css
+/* TOC */
+a.header-anchor {
+    /* 调节锚点的位置 */
+    border: 0 !important;
+    transform: translate(-100%, 10%) scale(1.2) !important;
+}
+a.header-anchor svg {
+    /* 调节锚点的颜色 */
+    fill: var(--main-font-color);
+}
+.toc-side {
+    /* 将 TOC 定位到右边空白 */
+    position: fixed;
+    top: 20vh;
+    right: 1vw;
+    max-width: 250px;
+}
+/* TOC 的样式, toc-list 是后面的 Scrollspy 的类名*/
+ul.toc-list {
+    border-left: 1px solid var(--main-border);
+}
+ul.toc-list li {
+    list-style-type: none;
+    margin-left: 24px;
+}
+ul.toc-list li a {
+    font-size: 0.9rem;
+    text-decoration: none;
+    border-bottom: 0;
+    transition: 0.2s all ease-in-out;
+}
+ul.toc-list li.is-current a {
+    /* 当前浏览章节 */
+    color: var(--main-border);
+}
+section.post ul.toc-list li::before {
+    /* 清除通用的样式 */
+    display: none;
+}
+@media screen and (max-width: 1439px) {
+    /* TOC 仅在宽屏下显示 */
+    .toc-side {
+        display: none;
+    }
+}
+```
+
+查看[文档](https://makotot.github.io/react-scrollspy/)里的用法，可以发现 items 接收的是不带 `#` 的 header 的标题：
+
+```js
+<div>
+    <div>
+        <section id="section-1">section 1</section>
+        <section id="section-2">section 2</section>
+        <section id="section-3">section 3</section>
+    </div>
+    <Scrollspy
+        items={["section-1", "section-2", "section-3"]}
+        currentClassName="is-current"
+    >
+        <li>
+            <a href="#section-1">section 1</a>
+        </li>
+        <li>
+            <a href="#section-2">section 2</a>
+        </li>
+        <li>
+            <a href="#section-3">section 3</a>
+        </li>
+    </Scrollspy>
+</div>
+```
+
+修改 Toc 组件，添加 Scrollspy：
+
+```js
+import React from "react";
+import Scrollspy from "react-scrollspy"; // 引入
+const Toc = ({ headers }) => {
+    // '#title'，index 从 1 开始取
+    let url = headers.items.map((p) => p["url"].substring(1));
+
+    return (
+        <nav className="toc-side">
+            <Scrollspy
+                items={url}
+                currentClassName="is-current"
+                className="toc-list"
+            >
+                {headers.items.map((p, index) => (
+                    <li key={p.url}>
+                        <a href={p.url}>{`${index} | ${p.title}`}</a>
+                    </li>
+                ))}
+            </Scrollspy>
+        </nav>
+    );
+};
+export default Toc;
 ```

@@ -36,6 +36,12 @@ module.exports = {
                             maxWidth: 900,
                         },
                     },
+                    {
+                        resolve: "gatsby-remark-autolink-headers",
+                        options: {
+                            className: `header-anchor`,
+                        },
+                    },
                 ],
             },
         },

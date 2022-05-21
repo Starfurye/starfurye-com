@@ -9,6 +9,7 @@ import { FaEdit } from "@react-icons/all-files/fa/FaEdit";
 import CodeBlock from "../../components/CodeBlock";
 import Header from "../../components/Header";
 import ScrollToTop from "../../components/ScrollToTop";
+import Toc from "../../components/Toc";
 
 const components = {
     pre: CodeBlock,
@@ -34,7 +35,7 @@ const ArticlePost = ({ data }) => {
                             {data.mdx.frontmatter.date}
                         </span>
                     </div>
-
+                    <Toc headers={data.mdx.tableOfContents} />
                     <MDXProvider components={components}>
                         <MDXRenderer>{data.mdx.body}</MDXRenderer>
                     </MDXProvider>
@@ -54,6 +55,7 @@ export const query = graphql`
                 last_modified(formatString: "YYYY年M月D日")
             }
             body
+            tableOfContents
         }
     }
 `;
