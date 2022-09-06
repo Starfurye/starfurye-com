@@ -1,0 +1,955 @@
+---
+title: "react 回顾"
+categories: ["Reactjs"]
+date: "2022-06-07"
+last-modified: "2022-06-07"
+brief-description: ""
+---
+
+## 模块化
+
+ES Module 的引入和导出方法有两种。
+
+default:
+
+```js
+// 导出
+export default somename; // 只能有一个默认导出
+// 引入
+import anyname from "file"; // 引入可以使用任意名字
+```
+
+named:
+
+```js
+// 导出
+export const thisname = ...;    // named导出可以有多个
+// 引入
+import {thisname} from 'thisfile';  // 引入必须使用导出时的名字
+```
+
+`as` 可以用于导出或导入时改名：
+
+```js
+export { function1 as fun1, function2 as fun2 };
+import { fun1, fun2 } from "thisfile";
+```
+
+```js
+export { function1, function2 };
+import { function1 as fun1, function2 as fun2 } from "thisfile";
+```
+
+## 组件
+
+组件只不过是一个返回 JSX 语法的声明式 JS 函数
+
+### 组件化
+
+优点：
+
+1. 代码复用
+
+2. 逻辑分离
+
+## React Hooks
+
+### useState
+
+归功于 `useState`，我们可以进行 UI 交互。比如下面的例子，修改局部变量 `title`，页面上 `<h1>` 的内容是不会变化的。
+
+```js
+const someComponent = (props) => {
+    let title = props.title;
+    const titleHandler = () => {
+        title = "updated";
+    };
+
+    return (
+        <>
+            <h1>{title}</h1>
+            <button onClick={titleHandler}></button>
+        </>
+    );
+};
+```
+
+我们需要使用 `useState` 来告诉 React，这个变量需要更新：
+
+```js
+import React, { useState } from "react";
+
+const someComponent = (props) => {
+    const [title, setTitle] = useState("default");
+    const titleHandler = () => {
+        setTitle("updated");
+        console.log(title); // 1
+    };
+
+    return (
+        <>
+            <h1>{title}</h1>
+            <button onClick={titleHandler}></button>
+        </>
+    );
+};
+```
+
+第一次使用 `useState` 时，默认值会由 React 保存作为这个 `state` 的初始值。`onClick` 事件函数执行后，React 修改 DOM 里对应 `state` 的值（显示在页面上），接着修改保存的 `state`，然后重新渲染组件（函数）并提前将保存的 `state` 放入 `state` 变量（这里是 `title`）。
+
+合并多个 state 的情况：
+
+```js
+setUserInput({
+    ...userInput,
+    enteredTitle: event.target.value,
+});
+
+setUserInput((prevState) => {
+    return
+        {
+            ...prevState,
+        enteredTitle: event.target.value
+        };
+});
+```
+
+由于 React 的延迟更新，如果当前 state 依赖于他原先的值，只有通过后一个方法（传入函数）能确保拿到的是最新的`prevState`。
+
+## 双向绑定
+
+在组件上添加 value 这个 prop。
+
+```js
+const someHandler = () => {
+    setSome('');
+}
+...
+return (<SomeComponent Value={some}/>)
+```
+
+在父组件上添加一个函数，将这个函数作为 props 传入子组件，然后在子组件里用子组件的数据作为参数调用这个从父组件传递来的函数。
+
+## 条件样式
+
+```js
+<SomeComponent className={`someclass${isValid ? "valid" : "invalid"}`} />
+```
+
+## CSS 模块 / Styled Components
+
+`Component.module.css`:
+
+```css
+.button {
+    ...;
+}
+.form-control {
+    ...;
+}
+```
+
+```js
+import styles from "./Component.module.css";
+...
+<SomeComponent className={styles.button} />
+<SomeComponent className={styles['form-control']} />
+```
+
+## React 调试
+
+1. 终端错误信息
+
+2. 浏览器控制台警告
+
+3. 断点调试（开发者工具资源 tab 下）
+
+4. React 开发工具（扩展工具插件）
+
+## 模态框
+
+setState 设置 error 状态，采用条件渲染：
+
+```js
+const [error, setError] = useState();
+...
+const clearErrorHandler = () => {
+    setError(null);
+};
+...
+{
+    error && (
+        <ErrorModal
+            title={error.title}
+            content={error.content}
+            onClearError={clearErrorHandler}
+        />
+    );
+}
+```
+
+传入的清除 error 的函数可以通过点击关闭按钮或阴影(backdrop)触发：
+
+```js
+const ErrorModal = ({ title, content, onClearError }) => {
+    return (
+        <div>
+            <div className={classes.backdrop} onClick={onClearError}></div>
+            <Card className={classes.modal}>
+                <header className={classes.header}>
+                    <h2>{title}</h2>
+                </header>
+                <div className={classes.content}>{content}</div>
+                <footer className={classes.actions}>
+                    <Button onClick={onClearError} text="好" />
+                </footer>
+            </Card>
+        </div>
+    );
+};
+```
+
+## React Portal
+
+以模态框为例（各种侧边栏和对话框同理），这样的写法：
+
+```js
+return (
+    <>
+        <MyModal />
+        <MyInputForm />
+    </>
+);
+```
+
+会生成如下 DOM：
+
+```html
+<section>
+    ...
+    <div class="my-modal">
+        <h2>A Modal Title!</h2>
+    </div>
+    <form>
+        <label>Username</label>
+        <input type="text" />
+    </form>
+</section>
+```
+
+这样的代码在技术上是没有问题的，但是存在语义问题，modal 不应该和下面的表单同级，而应该在顶级（body 下面）。解决方法如下：
+
+```html
+<!-- index.html -->
+<body>
+    <!-- portal -->
+    <div id="backdrop-root"></div>
+    <div id="overlay-root"></div>
+    <div id="root"></div>
+</body>
+```
+
+```js
+import ReactDOM from 'react-dom';
+
+const Backdrop = (props) => {
+    return <div className={classes.backdrop} onClick={props.onConfirm} />;
+}
+const ModalOverlay = (props) => {...};
+
+const ErrorModal = (props) => {
+    return <>
+        {
+            ReactDOM.createPortal(
+                <Backdrop onClick={...}/>,
+                document.getElementById('backdrop-root')
+            )
+        }
+        {
+            ReactDOM.createPortal(
+                <ModalOverlay title={...} message={...} onConfirm={...}/>,
+                document.getElementById('overlay-root')
+            )
+        }
+    </>;
+}
+```
+
+## ref
+
+```js
+import React, { useRef } from "react";
+const SomeComponent = (props) => {
+    const nameInputRef = useRef();
+    const ageInputRef = useRef();
+
+    const addUserHandler = (event) => {
+        event.preventDefault();
+        console.log(nameInputRef.current.value);
+        ...
+        nameInputRef.current.value = '';    // 重设表单
+    }
+    ...
+    <input
+        id='username'
+        type='text'
+        value={...}
+        onChange={...}
+        ref={nameInputRef}
+    />
+};
+```
+
+通过 useRef 可以访问 DOM 元素，某些场景下可以替代 state 从而简化代码，但如果 useRef 所替代的 DOM 元素需要更改（不是只读的），则不应使用 useRef（不直接修改 DOM 元素的原则）。
+
+## React Hooks
+
+### useEffect
+
+如下代码会产生无限循环：
+
+```js
+function App() {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const storedInfo = localStorage.getItem('isLoggedIn');
+
+    if (storedInfo === '1') setIsLoggedIn(true);
+    ...
+}
+```
+
+每次从 LocalStorage 中取出值，如果是 1 就会重新渲染组件，再次检查 LocalStorage 中的值...
+
+使用 useEffect：
+
+```js
+function App() {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        const storedInfo = localStorage.getItem("isLoggedIn");
+        if (storedInfo === "1") setIsLoggedIn(true);
+    }, []);
+}
+```
+
+依赖为空，代表只执行一次，流程如下：
+
+1. 渲染组件
+2. 执行 useEffect 中的函数，更新 state
+3. state 更新导致组件重新渲染，由于 useEffect 依赖项为空，里面的函数不会再执行
+
+依赖不为空，则当依赖中的任意项改变时，useEffect 中的函数就会执行。
+
+#### 防抖
+
+```js
+useEffect(() => {
+    const timer = setTimeout(() => {
+        console.log('do something!');
+        setFormIsValid(...);
+    }, 500);
+
+    return () => {clearTimeout(timer)}
+}, [enteredEmail, enteredPassword]);
+```
+
+### useReducer
+
+如果使用 `useState` 管理的一些状态都描述的是同一个对象的不同属性（比如一个表单中用户名、密码、邮箱、表单合法性等），或 `state` 之间存在依赖关系，那么可以使用 `useReducer` 来替代诸多 `useState`。一个配合使用 `useReducer` 和 `useContext` 的经典例子：
+
+```js
+const defaultState = {
+    // 默认state
+    prop1: 0,
+    prop2: 0,
+};
+const someReducer = (state, action) => {
+    // reducer 明确定义不同 action 的操作
+    switch (action.type) {
+        case "ACTION1": {
+            // action.anyprop(dispatch 时指定)
+            return {
+                prop1: 1,
+                prop2: 1,
+            };
+        }
+        case "ACTION2": {
+            // action.anyprop2(dispatch 时指定)
+            return {
+                prop1: 2,
+                prop2: 2,
+            };
+        }
+        default: {
+            return defaultState;
+        }
+    }
+};
+const someProvider = ({ children }) => {
+    const [someState, dispatchSomeAction] = useReducer(
+        someReducer,
+        defaultState
+    );
+
+    const action1Handler = (prop1) => {
+        dispatchSomeAction({ type: "ACTION1", prop1 });
+    };
+    const action2Handler = (prop2) => {
+        dispatchSomeAction({ type: "ACTION2", prop2 });
+    };
+    const someContext = {
+        prop1: someState.prop1,
+        prop2: someState.prop2,
+        action1: action1Handler,
+        action2: action2Handler,
+    };
+
+    return (
+        <SomeContext.Provider value={someContext}>
+            {children}
+        </SomeContext.Provider>
+    );
+};
+```
+
+### useContext
+
+有些状态是全局的，如果不通过全局管理就需要一层一层的通过 props 传递，使得逻辑变得复杂。
+
+```js
+// auth-context.js
+import React from "react";
+const AuthContext = React.createContext({
+    isLoggedIn: false,
+    onLogout: () => {}, // 各个组件都可以使用的函数
+});
+```
+
+Provider:
+
+```js
+<AuthContext.Provider value={{ isLoggedIn: isLoggedIn }}>
+    ...
+</AuthContext.Provider>
+```
+
+Consumer:
+
+```js
+import React, {useContext} from 'react';
+import AuthContext from '...';
+...
+const SomeComponent = (props) => {
+    const context = useContext(AuthContext);
+    // context.isLoggedIn
+}
+```
+
+或
+
+```js
+import React, {useContext} from 'react';
+import AuthContext from '...';
+...
+const SomeComponent = (props) => {
+    ...
+    return <AuthContext.Consumer>
+            {(context) => {
+                {
+                    /* context.isLoggedIn */
+                }
+            }}
+        </AuthContext.Consumer>;
+}
+```
+
+Context 不适用于高频变化的变量。
+
+## React 原理和优化
+
+组件根据 context, props, state 的变化修改虚拟 DOM，最后对真正的 DOM 进行修改。
+
+state 和 context 的更改会导致组件的重新渲染，父组件的重新渲染会导致子组件的重新渲染。
+
+### React.memo
+
+对于一些 props 不应该随着父组件重新渲染而重新渲染的子组件，使用 React.memo，它会检测 props 和之前相比有没有变化(===)，只有 props 不同时才会重新渲染：
+
+```js
+export default React.memo(SomeComponent);
+```
+
+另外，memo 会切断这一重新渲染链，使用了 memo 的组件的子组件也有效果。
+
+### useCallback
+
+对于一些 props 里有函数（或其他复杂类型）的组件，每次重新渲染都会产生地址不同但功能相同的**函数**，这些函数会被 memo 认为是不同的。这时 `useCallback` 就出场了，它可以存储这些函数，每当组件重新渲染时就会取出存储的函数，而不是在生成一个新的函数：
+
+```js
+const someFunction = useCallback(() => {
+    setShowButton((prevShowButton) => !prevShowButton);
+}, []);
+```
+
+由于 `setShowButton` 不会改变，因此没有依赖项。
+
+对于下面的情况：
+
+```js
+const toggleParagraphHandler = useCallback(() => {
+    if (allowToggle) {
+        setShowParagraph((prevShowParagraph) => !prevShowParagraph);
+    }
+}, [allowToggle]);
+```
+
+`allowToggle` 是一个 state，如果没有依赖项，`useCallback` 的闭包将保存旧的 `allowToggle` 值，且不会再变化，因此要将 `allowToggle` 放入依赖项。
+
+### useMemo
+
+`useMemo` 可以记忆任意变量，参数里的函数需要返回这些要记忆的变量：
+
+```js
+// 父组件
+<SomeComponent
+    title={...}
+    items={
+        useMemo(
+            {/* 数组是引用类型 */}
+            () => [5,4,1,10,9],
+            []
+        )
+    }
+/>
+
+// 子组件
+const { items } = props;
+const sortedList = useMemo(() => items.sort((a, b) => a - b), [items]);
+```
+
+## 自定义 Hook
+
+hook 必须以 use 开头：
+
+```js
+const useCounter = (arg1, arg2) => {
+    const [counter, setCounter] = useState(0);
+    useEffect();
+    // some logic
+    return counter;
+};
+export default useCounter;
+```
+
+自定义 hook 里的 state 被绑定在 hook 上，每次使用自定义 hook 都会创建一个**独立的** state：
+
+```js
+import useCounter from '...';
+...
+const count = useCounter();
+```
+
+### 常用 hook 用户输入
+
+hook 写法：
+
+```js
+// use-input.js
+// 传入验证函数
+import { useState } from "react";
+const useInput = (validateValue) => {
+    const [enteredValue, setEnteredValue] = useState("");
+    // 只有输入后而且 validateValue 的结果是 false 才算错误，没有输入或提交后都不算
+    const [isTouched, setIsTouched] = useState(false);
+
+    const valueIsValid = validateValue(enteredValue);
+    const hasError = !valueIsValid && isTouched;
+
+    const valueChangeHandler = (event) => {
+        setEnteredValue(event.target.value);
+    };
+    const inputBlurHandler = () => {
+        setIsTouched(true);
+    };
+    const resetInput = () => {
+        // 重设输入值
+        setEnteredValue("");
+        setIsTouched(false);
+    };
+
+    return {
+        value: enteredValue,
+        isValid: valueIsValid,
+        hasError,
+        valueChangeHandler,
+        inputBlurHandler,
+        resetInput,
+    };
+};
+export default useInput;
+```
+
+使用 hook：
+
+```js
+import useInput from 'use-input';
+
+const isNotEmpty = (value) => value.trim() !== '';
+const isSixChars = (value) => value.trim().length === 6;
+
+const SomeComponent = () => {
+    const {
+        value: enteredName,
+        isValid: enteredNameIsValid,
+        hasError: nameInputHasError,
+        valueChangeHandler: nameChangedHandler,
+        inputBlurHandler: nameBlurHandler,
+        resetInput: resetNameInput,
+    } = useInput(isNotEmpty);
+    ...
+    const nameControlClasses = `${classes.control} ${
+        nameInputHasError ? classes.invalid : ""
+    }`;
+    ...
+    return (
+        ...
+        <div className={nameControlClasses}>
+            <input
+                type="text"
+                id="name"
+                onChange={nameChangedHandler}
+                onBlur={nameBlurHandler}
+                value={enteredName}
+            />
+            {nameInputHasError && <p>名字不能为空</p>}
+        </div>
+        ...
+    );
+}
+```
+
+### 常用 hook http
+
+hook 写法：
+
+```js
+// use-http.js
+import { useState, useCallback } from "react";
+
+const useHttp = () => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const sendRequest = useCallback(async (requestConfig, SomeFn) => {
+        setIsLoading(true);
+        setError(false);
+
+        try {
+            const response = await fetch(requestConfig.url, {
+                method: requestConfig.method || "GET",
+                headers: requestConfig.headers || {},
+                body: requestConfig.body
+                    ? JSON.stringify(requestConfig.body)
+                    : null,
+            });
+            if (!response.ok) {
+                throw new Error("请求出错");
+            }
+
+            const data = await response.json();
+            // SomeFn(data);
+        } catch (err) {
+            setError(err.message || "出错了");
+        }
+        setIsLoading(false);
+    }, []);
+
+    return {
+        isLoading,
+        err,
+        sendRequest,
+    };
+};
+```
+
+使用 hook：
+
+```js
+import useHttp from 'use-http';
+...
+const SomeComponent = () => {
+    ...
+    const someFunction = (useData) => {
+        ...sendRequest({
+                url: 'xxx.xxx/xxx.json',
+                method: 'POST',
+                body: {
+                    user: userData,
+                    ...
+                }
+            },
+            () => {}
+        )
+        ...
+    }
+};
+```
+
+## 表单处理
+
+验证的时机：提交时、失去焦点时、每次按键后
+
+## Router
+
+```js
+// index.js
+import ReactDOM from "react-dom/client";
+
+import "./index.css";
+import App from "./App";
+import { BrowserRouter } from "react-router-dom";
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
+    <BrowserRouter>
+        <App />
+    </BrowserRouter>
+);
+```
+
+Route 确保路由只渲染指定组件，动态路由可以使用冒号开头的参数（可以有多个）匹配任意字符串，使用 useParams 来接收这些字符串；Switch 确保只有其中一个组件能被渲染：
+
+```js
+import { Route, Switch } from "react-router-dom";
+import Component1 from "Component1";
+import Component2 from "Component2";
+function App() {
+    return (
+        <div>
+            <Switch>
+                <Route path="./page1">
+                    <Component1 />
+                </Route>
+                <Route path="./page2">
+                    <Component2 />
+                </Route>
+                <Route path="./product/:productId">
+                    <Product />
+                </Route>
+            </Switch>
+        </div>
+    );
+}
+```
+
+```js
+import { useParams } from "react-router-dom";
+const Product = () => {
+    const params = useParams();
+    // params.productId
+};
+```
+
+Link 用于组件内切换页面，普通的 a 标签会发送请求，而 Link 不会；NavLink 可以设置 activeClassName 来方便地设置点击激活时的样式。
+
+Redirect: 用于重定向
+
+```js
+<Switch>
+    <Route path="/" exact>
+        <Redirect to="/home" />
+    </Route>
+    <Route path="./home">
+        <Home />
+    </Route>
+    ...
+</Switch>
+```
+
+`useHistory` 可以主动进行跳转（比如表单提交后的跳转），其中 `replace` 是替换当前页面且不会保留当前页面的历史记录而 `push` 会将当前页面推入历史记录。
+
+`Prompt` 可以防止用户意外退出页面：
+
+```js
+import { useState } from "react";
+import { Prompt } from "react-router-dom";
+const SomeComponent = () => {
+    const [isEntering, setIsEntering] = useState(false);
+
+    const formFocusedHandler = () => {
+        setIsEntering(true);
+    };
+    const finishEnteringHandler = () => {
+        setIsEntering(false);
+    };
+
+    return (
+        <>
+            <Prompt
+                when={isEntering}
+                message={(location) => "确认退出？网站不会保留您的更改。"}
+            />
+            ...
+            <form className={...} onSubmit={...} onFocus={formFocusedHandler}>
+                ...
+                {/* 提交按钮 */}
+                <div className={classes.actions}>
+                    <button className="btn" onClick={finishEnteringHandler}>
+                        提交
+                    </button>
+                </div>
+            </form>
+
+        </>
+    );
+};
+```
+
+`useLocation` 可以获得 url 里的查询字符串，下面的例子利用 `useLocation` 和 `useHistory` 实现排序：
+
+```js
+import { useHistory, useLocation } from "react-router-dom";
+
+const sortQuotes = (quotes, ascending = true) => {
+    return quotes.sort((a, b) => {
+        if (ascending) {
+            return a.id > b.id ? 1 : -1;
+        } else return a.id < b.id ? 1 : -1;
+    });
+};
+const SomeComponent = ({ quotes }) => {
+    const history = useHistory();
+    const location = useLocation();
+    // useLocation 提取查询字符串
+    const queryParams = new URLSearchParams(location.search);
+    const isSortingAscending = queryParams.get("sort") === "asc";
+    const sortedQuotes = sortQuotes(quotes, isSortingAscending);
+
+    const changeSortingHandler = () => {
+        // useHistory 修改 url
+        history.push(
+            `${location.pathname}?sort=${isSortingAscending ? "desc" : "asc"}`
+        );
+        // 或
+        // history.push({
+        //     pathname: location.pathname,
+        //     search: `?sort=${isSortingAscending ? "desc" : "asc"}`,
+        // });
+    };
+
+    return (
+        <Fragment>
+            <div className={classes.sorting}>
+                <button onClick={changeSortingHandler}>
+                    Sort {isSortingAscending ? "Descending" : "Ascending"}
+                </button>
+            </div>
+            <ul className={classes.list}>
+                {sortedQuotes.map((quote) => (
+                    <QuoteItem
+                        key={quote.id}
+                        id={quote.id}
+                        author={quote.author}
+                        text={quote.text}
+                    />
+                ))}
+            </ul>
+        </Fragment>
+    );
+};
+```
+
+`useRouteMatch` 可以获取**当前**路由的详细信息，包括 `isExact`, `params`, `path`, `url`，这样如果要更改 url 时不用进行多处更改：
+
+```js
+import { useParams, Route, useRouteMatch } from "react-router-dom";
+const SomeComponent = () => {
+    const match = useRouteMatch();
+
+    return (
+        // path 的值为 '/quotes/:quoteId'
+        // <Route path={`/quotes/${params.quoteId}/comments`}>
+        //     <Comments />
+        // </Route> 修改为
+        <Route path={`${match.path}/comments`}>
+            <Comments />
+        </Route>
+    );
+};
+```
+
+因此 useLocation 和 useRouteMatch 可以提高编码的灵活性，减少 hard-coded 的情况。
+
+### v6
+
+1. v6 版本移除了 `Switch`，而使用 `Routes`；同时 `Route` 不再包裹要渲染的指定元素，而使用 `element` 进行设定：
+
+```js
+<Route path="..." element={<SomeComponent />} />
+```
+
+2. v6 版本将 `exact` 作为 `Route` 默认的 `prop`，而不需要再重新设置；
+
+3. `<NavLink />` 的 `className` 接收一个函数，用来设置其样式。
+
+4. `<Redirect to='...' />` 更改为 `<Navigate replace to='...' />`
+
+5. 单独出现的 `Route` 也要通过 `Routes` 进行包裹，其 path 是相对当前 `Route` 的路径而不是绝对路径。
+
+6. 所有 `Route` 现在可以放在一起，`Route` 内的 `Route` 可以使用 `Outlet` 来指代要插入的元素：
+
+```js
+<Route element={<SomeComponent />}>
+    <Route element={...} />
+<Route />
+```
+
+```js
+import {Outlet} from 'react-router-dom'
+const SomeComponent = () => {
+    return (
+        ...
+        <Outlet />
+    );
+}
+```
+
+7. 主动跳转：`useHistory` 换为 `useNavigate`：
+
+```js
+import { useNavigate } from "react-router-dom";
+
+const SomeComponent = () => {
+    const navigate = useNavigate();
+    // navigate(1); 前进一个页面
+    // navigate(-1); 后退一个页面
+};
+```
+
+8. `<Prompt />` 不再存在，需要自己实现意外退出功能。
+
+## Misc
+
+1. JSX 不能返回多个并列元素的原因：**javascript 不允许** return 多个仅仅根据空格或换行分割的项：
+
+```js
+return (
+    React.createElement('h2', {}, 'Hi')
+    React.createElement('p', {}, 'Hi again')
+)
+// invalid
+```
+
+解决方法：
+
+-   使用任意标签进行包裹(比如 div)，但如果都用这些标签最后生成的 DOM 会嵌套很多层 div，可能造成 css 选择上的问题或性能问题。
+-   使用一个自定义组件：
+
+```js
+export const Wrapper = (props) => props.children;
+```
+
+-   原理和上面的自定义组件类似，使用 `<React.Fragment></React.Fragment>` 或 `<Fragment></Fragment>` 或 `<></>`
+
+2. `Router` 和 `Link` 的区别
