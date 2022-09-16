@@ -2,7 +2,7 @@
 title: "拾趣开发日志"
 categories: ["development"]
 date: "2022-02-23"
-last-modified: "2022-05-11"
+last-modified: "2022-09-15"
 brief-description: "拾趣 - 拾取日常生活中的乐趣，是一个可以和每一个人分享生活中拍摄到的乐趣的 Web App"
 ---
 
@@ -140,21 +140,13 @@ form-hook：
 ### 流程
 
 1. 创建基本路由
-
 2. 编写自定义 http 错误中间件
-
 3. 编写 API：在路由文件里注册一条路由 -> 在 controller 文件里编写详细的业务逻辑并暴露接口
-
 4. 验证用户输入：使用 `express-validator` 确保前端发来的用户信息合法
-
 5. 调用地图 API 将地址转换为经纬度信息。
-
 6. 避开使用 Mongodb 自带 driver 的复杂性（连接-操作-关闭连接），使用 Mongoose 连接 Mongodb
-
 7. 创建地点和用户的数据模型 `user.js`， `place.js`，用户的 email 是唯一的
-
 8. 连接数据库，改写前面的逻辑
-
 9. 处理数据模型之间的联系（一对多）
 
 ## 连接前端和后端
@@ -166,7 +158,6 @@ form-hook：
 Frontend:
 
 1. 修改 `Auth.js` 内的 `authSubmitHandler()` 为异步函数，在该函数内利用 `axios` 模块向后端（`http://localhost:5000/api/users/signup`）发送 `POST` 请求，请求体内包括 `name`, `email`, `password` 这些必要信息，设置请求头的 `Content-Type` 为 `application/json`。
-
 2. 新增`state`： `isLoading` 和 `error`，分别处理提交登录信息后显示载入画面和登录失败的情况，提高用户体验。在 `Auth` 组件中添加 `ErrorModal` 和 `LoadingSpinner`，这两个组件会根据前面的两个状态来决定是否显示：
 
 ```js

@@ -2,11 +2,9 @@
 title: "前端基础回顾(I) - HTML & CSS"
 categories: ["FE"]
 date: "2022-08-21"
-last-modified: "2022-09-05"
-brief-description: ""
+last-modified: "2022-09-15"
+brief-description: "前端基础回顾是我用来准备前端基础面试（一面和二面部分）时写的笔记，随着面试次数增加不断更新。"
 ---
-
-前端基础回顾是我用来准备前端基础面试（一面和二面部分）时写的笔记，随着面试次数增加不断更新。
 
 ## HTML
 
@@ -44,9 +42,7 @@ brief-description: ""
 -   **搜索引擎（机器）方便解读。**比如搜索引擎对 header 标签特别敏感，对一般的 div 标签则不敏感，使用语义化标签便于让搜索引擎了解网站的信息。再比如一些屏幕阅读器，他们的定制浏览器会针对某些标签设置自定义样式（比如放大 header 标签的内容），使用语义化标签便于让屏幕阅读器合适地解析 html 文件。
 
 2. 常见的块级元素和内联元素
-
     - 块级元素：`div`，`h1-h6`，`table`，`ul`，`ol`，`p` 等，占据其父元素（容器）的整个水平空间，垂直空间等于其内容高度。通常浏览器会在块级元素前后另起一个新行。
-
     - 内联元素：`span`，`img`，`input`，`button` 等，只占据它对应标签的边框所包含的空间，不独占一行。
 
 ## CSS
@@ -54,72 +50,59 @@ brief-description: ""
 ### 布局
 
 1. 盒模型 box-sizing
-
 2. **相邻元素** 和 **空内容的 p 标签**的 `margin-top` 和 `margin-bottom` 会重叠
-
 3. margin 负值
-
     - `margin-top` 和 `margin-left` 负值，元素向上、向左移动。
     - `margin-right`负值，右侧元素左移，自身不受影响
     - `margin-bottom`负值，下方元素上移，自身不受影响
     - 上、左设置 margin 负值，自身会向设置负值方向移动；下、右设置负值，设置负值一侧的相邻元素会向反方向移动
-
-    **绝对定位**环境下：
-
+      **绝对定位**环境下：
     - 下、右设置 margin 负值，自身会向设置负值方向移动；上、左设置负值，设置负值一侧的相邻元素会向反方向移动
-
 4. BFC (Block format context) 块级格式化上下文：是一块独立的渲染区域，内部元素的渲染不会影响边界外的元素。（包含内部浮动，排除外部浮动，阻止外边距重叠）
-
-    形成 BFC 的条件：
-
+   形成 BFC 的条件：
     - 浮动元素（`float` 不是 `none）`
     - 绝对定位元素（`position` 是 `absolute` 或 `fixed`）
     - 行内块元素（`display: inline-block`）
     - 匿名表格单元格元素（`display: table`）
     - `overflow` 不是 `visible` 或 `clip`
     - `display` 为 `flex` 或 `grid` 的直接子元素
-
 5. float 布局
-
-圣杯布局：
-
-<iframe
-    height="350"
-    style="width: 100%;"
-    scrolling="no"
-    title="圣杯布局"
-    src="https://codepen.io/starfurye/embed/preview/zYjxaPa?default-tab=html%2Cresult"
-    frameborder="no"
-    loading="lazy"
-    allowtransparency="true"
-    allowfullscreen="true"
->
-    See the Pen <a href="https://codepen.io/starfurye/pen/zYjxaPa">圣杯布局</a>{" "}
-    by Chenghe Hu (<a href="https://codepen.io/starfurye">@starfurye</a>) on{" "}
-    <a href="https://codepen.io">CodePen</a>.
-</iframe>
-
-与双飞翼布局：
-
-<iframe
-    height="350"
-    style="width: 100%;"
-    scrolling="no"
-    title="双飞翼布局"
-    src="https://codepen.io/starfurye/embed/preview/yLjyERp?default-tab=html%2Cresult"
-    frameborder="no"
-    loading="lazy"
-    allowtransparency="true"
-    allowfullscreen="true"
->
-    See the Pen{" "}
-    <a href="https://codepen.io/starfurye/pen/yLjyERp">双飞翼布局</a> by Chenghe
-    Hu (<a href="https://codepen.io/starfurye">@starfurye</a>) on{" "}
-    <a href="https://codepen.io">CodePen</a>.
-</iframe>
-
-目的：中间栏先加载和渲染，两侧内容固定，中间随宽度自适应
-实现要点：
+   圣杯布局：
+    {" "}
+    <iframe
+        height="350"
+        style="width: 100%;"
+        scrolling="no"
+        title="圣杯布局"
+        src="https://codepen.io/starfurye/embed/preview/zYjxaPa?default-tab=html%2Cresult"
+        frameborder="no"
+        loading="lazy"
+        allowtransparency="true"
+        allowfullscreen="true"
+    >
+        See the Pen{" "}
+        <a href="https://codepen.io/starfurye/pen/zYjxaPa">圣杯布局</a> by
+        Chenghe Hu (<a href="https://codepen.io/starfurye">@starfurye</a>) on{" "}
+        <a href="https://codepen.io">CodePen</a>.
+    </iframe>
+    与双飞翼布局：
+    <iframe
+        height="350"
+        style="width: 100%;"
+        scrolling="no"
+        title="双飞翼布局"
+        src="https://codepen.io/starfurye/embed/preview/yLjyERp?default-tab=html%2Cresult"
+        frameborder="no"
+        loading="lazy"
+        allowtransparency="true"
+        allowfullscreen="true"
+    >
+        See the Pen{" "}
+        <a href="https://codepen.io/starfurye/pen/yLjyERp">双飞翼布局</a> by
+        Chenghe Hu (<a href="https://codepen.io/starfurye">@starfurye</a>) on{" "}
+        <a href="https://codepen.io">CodePen</a>.
+    </iframe>
+    目的：中间栏先加载和渲染，两侧内容固定，中间随宽度自适应 实现要点：
 
 -   使用 float 布局
 -   两侧使用 margin 负值，以便和中间内容**横向重叠**
@@ -135,9 +118,7 @@ brief-description: ""
 }
 ```
 
-这里用 `display: table` 和 `display: block` 在大部分情况下是等价的，只有当需要清除浮动的元素（类为 clearfix 的元素）内容为空时产生区别：由于前者可以产生 BFC，上下方元素边距不会合并。
-
-7. flex 布局画骰子
+这里用 `display: table` 和 `display: block` 在大部分情况下是等价的，只有当需要清除浮动的元素（类为 clearfix 的元素）内容为空时产生区别：由于前者可以产生 BFC，上下方元素边距不会合并。 7. flex 布局画骰子
 
 <iframe
     height="350"
@@ -205,7 +186,6 @@ brief-description: ""
 1. 自适应和响应式的区别
 
 -   自适应：解决在不同大小的设备上呈现**相同样式比例**的网页；
-
 -   响应式：根据屏幕大小自动调节页面的展现方式和布局，是自适应的超集，在必要时需要调节网站的可见内容。比如本站的移动端页面的菜单和桌面端是不一样的，移动端有边栏而桌面端没有。
 
 2. 实现自适应的方案：`rem`，`vw/vh (vmax/vmin)`，媒体查询

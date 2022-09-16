@@ -2,7 +2,7 @@
 title: "用github做个人图床"
 categories: ["utility"]
 date: "2020-05-29"
-last-modified: "2022-04-27"
+last-modified: "2022-09-15"
 brief-description: "平时写github仓库文档和博客文章的时候要用到图片，一旦图片多了存在服务器上就有点浪费空间，因此选择图床（自建或网络服务）。"
 ---
 
@@ -15,7 +15,6 @@ brief-description: "平时写github仓库文档和博客文章的时候要用到
 ## 配置 Github 仓库
 
 1. 新建一个 Github 仓库，名称不重要，我的是`PicBase`。注意和 Github Pages 一样（如果用 Github 搭建过免费博客的话），**选择 Public 仓库**，否则没有人能看到存在里面的图片。
-
 2. 进入个人设定（注意不是仓库设定）：![setting](https://i.loli.net/2020/05/29/jizTIFg4sdo2yJl.png)
 
 在左边选择最下面的一块**Developer settings**，然后选择**Personal access tokens**，点击**Generate a personal access token**新建一个 token：
@@ -31,19 +30,13 @@ Note 随便填，勾选下面的 repo，然后创建 token：
 ## 配置 PicGo 客户端
 
 1. 从上面的 PicGo Github 页面根据自己的操作系统下载对应的客户端。
-
 2. 打开详细窗口，在图床设置里选择 Github： ![PicGo.png](https://i.loli.net/2020/05/29/Q3PcsyYlfvX81hq.png)
-
-按照提示填写，下面是我的例子：
+   按照提示填写，下面是我的例子：
 
 -   设定仓库名：`starfurye/PicBase`
-
 -   设定分支名：`master`
-
 -   设定 Token：`*****************************`（刚才 Github 创建的私人 Token）
-
 -   指定存储路径：``(可以为空，也可以自定义文件夹用来分类)
-
 -   设置自定义域名：`https://raw.githubusercontent.com/starfurye/PicBase/master`
 
 3. 使用很简单，就不介绍了。注意上传完链接是直接保存到剪贴板的。
@@ -51,13 +44,8 @@ Note 随便填，勾选下面的 repo，然后创建 token：
 ## 存在的问题
 
 1. 由于仓库是公开的，不要上传私密图片，图片命名最好不需要有规律。
-
 2. 由于 dns 污染，如果不更改 hosts，`githubusercontent.com`这个域名在国内部分地区无法访问。而一般人不会去配置 hosts，如果主要受众是国内用户，建议还是使用国内的图床。
-
-这张使用 github 图床：![github](https://raw.githubusercontent.com/starfurye/PicBase/master/blog-0-github_error.png)
-
-这张使用 sm.ms：![sm.ms](https://i.loli.net/2020/05/29/TwrhWtKI7ZClHOc.png)
-
-如果两张都看得见，那么你的 DNS 是正常的。
-
+   这张使用 github 图床：![github](https://raw.githubusercontent.com/starfurye/PicBase/master/blog-0-github_error.png)
+   这张使用 sm.ms：![sm.ms](https://i.loli.net/2020/05/29/TwrhWtKI7ZClHOc.png)
+   如果两张都看得见，那么你的 DNS 是正常的。
 3. 小 bug，估计还是上面提到的问题，有时上传 github 图床会出错。

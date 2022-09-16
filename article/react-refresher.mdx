@@ -2,7 +2,7 @@
 title: "react 回顾"
 categories: ["Reactjs"]
 date: "2022-06-07"
-last-modified: "2022-06-07"
+last-modified: "2022-09-15"
 brief-description: ""
 ---
 
@@ -159,11 +159,8 @@ import styles from "./Component.module.css";
 ## React 调试
 
 1. 终端错误信息
-
 2. 浏览器控制台警告
-
 3. 断点调试（开发者工具资源 tab 下）
-
 4. React 开发工具（扩展工具插件）
 
 ## 模态框
@@ -890,13 +887,9 @@ const SomeComponent = () => {
 ```
 
 2. v6 版本将 `exact` 作为 `Route` 默认的 `prop`，而不需要再重新设置；
-
 3. `<NavLink />` 的 `className` 接收一个函数，用来设置其样式。
-
 4. `<Redirect to='...' />` 更改为 `<Navigate replace to='...' />`
-
 5. 单独出现的 `Route` 也要通过 `Routes` 进行包裹，其 path 是相对当前 `Route` 的路径而不是绝对路径。
-
 6. 所有 `Route` 现在可以放在一起，`Route` 内的 `Route` 可以使用 `Outlet` 来指代要插入的元素：
 
 ```js
@@ -951,5 +944,3 @@ export const Wrapper = (props) => props.children;
 ```
 
 -   原理和上面的自定义组件类似，使用 `<React.Fragment></React.Fragment>` 或 `<Fragment></Fragment>` 或 `<></>`
-
-2. `Router` 和 `Link` 的区别
