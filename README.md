@@ -13,4 +13,4 @@ My brand new blog built with Gatsby & React from scratch!
 
 ## Bug list
 
--   顶级的 li 会表现为单独一行
+-   ✅ 顶级的 li 会表现为单独一行（markdown 的有序和无序列表项目之间不要空行）

@@ -2,7 +2,7 @@
 title: "sshell - simple shell(II)：管道和重定向"
 categories: ["programming"]
 date: "2020-06-07"
-last-modified: "2022-05-02"
+last-modified: "2022-09-15"
 brief-description: "前文中的代码可以实现简单的重定向输出功能，但是非常不容易拓展，如果要实现更多的功能就要调整一下算法和代码结构。"
 ---
 
@@ -105,7 +105,6 @@ cat <input.txt | sort -r | uniq | cat >output.txt
 可以发现，在不考虑括号及其他一些条件语句的情况下，
 
 1. shell 命令是从左至右依次执行的，管道的输入来自前面的**整个**表达式的输出。
-
 2. 重定向符号右边一定是文件地址，碰到重定向符号总是立刻进行重定向，和文件地址后面的内容没有关系。
 
 这样可以清楚地了解整个命令的数据流向：
