@@ -14,6 +14,7 @@ const colorsPool = [
     "#FCDFA6",
     "#A18276",
     "#B8DBD9",
+    "#3C887E",
 ];
 
 const CategoriesPage = ({
@@ -41,7 +42,7 @@ const CategoriesPage = ({
                                 {category.fieldValue} ({category.totalCount})
                             </Link> */}
                             <CategoryListItem
-                                link={`/categories/${category.fieldValue}/`}
+                                link={`/categories/${category.fieldValue.toLowerCase()}/`}
                                 categoryName={category.fieldValue}
                                 count={category.totalCount}
                                 color={colorsPool[index]}
