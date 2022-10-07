@@ -1,0 +1,730 @@
+---
+title: "前端基础回顾(II) - Javascript"
+categories: ["FE"]
+date: "2022-08-22"
+last-modified: "2022-10-07"
+brief-description: "前端基础回顾是我用来准备前端基础面试（一面和二面部分）时写的笔记，随着面试次数增加不断更新。"
+---
+
+## 变量
+
+### 基本类型
+
+1. `Number`：数字，使用 IEEE754（64 位）双精度浮点数存储，s 为**符号位**（1 位），exponent 为**有偏指数**（11 位），fraction 为**小数部分**（52 位）。
+
+```
+------------------------------------ ... ---------
+|s| exponent  |    fraction                      |
+------------------------------------ ... ---------
+^            ^                                  ^
+|            |                                  |
+63           52                                 0
+s: 0|1，符号位
+e: 指数位，减去偏置常数 1023（2^n - 1，n为指数位数，f中有一位在小数点前的1的隐藏位中）
+f: 小数位，不足52位补零
+```
+
+-   指数在 `00000000001-11111111110 (1 ~ 2046)` 范围时为**规格化数**；
+-   指数值为 0 且小数部分全为 0 时为非规格化数；
+-   指数值为 `11111111111` 且小数部分全为 0 时，若符号位是 0 则表示+Infinity（正无穷），若符号位为 1 则表示-Infinity（负无穷）；
+-   指数值为 `11111111111` 且小数部分不全为 0 时，表示为 NaN。
+
+规格化浮点数可表示为（1.f 中的 1 为隐藏位，不占用 64 位中的任何一位）：
+
+$$
+(-1)^{s}\times1.f\times2^{e-1023}(0\lt e\lt 2047)
+$$
+
+-   **最大值**：指数 e 最大（11111111110）且小数位 f 最大（全为 1）；
+-   **最大精确整数**（`MAX_SAFE_INTEGER`）：符号位为 `0`，指数 e 为 `1023+52` 且小数位最大（全为 1）时，最大安全整数为 `9007199254740991`；
+-   **最小值**：指数 e 最小（11111111110）且小数位 f 最小（全为 0）；
+-   **最小精确整数**（`MIN_SAFE_INTEGER`）：符号位为 `1`，指数 e 为 `1023+52` 且小数位最大（全为 1）时，最小安全整数为 `-9007199254740991`；
+
+2.  `String`：字符串
+3.  `Boolean`：布尔值，`true` 或 `false`
+4.  `Undefined`：一个变量最自然的状态（注意和 Null 不同）
+5.  `Null`
+6.  `Symbol`(ES6)
+7.  `BigInt`(ES6)
+
+基本数据类型是直接存储在栈中的简单数据段，占据空间小、大小固定，属于被频繁使用的数据。
+
+### 引用类型
+
+-   `Object`
+-   `Function`
+
+**引用类型**存储在堆内存中，占据空间大、大小不固定。引用数据类型在栈中存储了指针，该指针指向堆中该实体的起始地址，当解释器寻找引用值时，会检索其在栈中的地址，取得地址后从堆中获得实体。
+
+### 基本类型和引用类型的区别（堆和栈）
+
+-   堆比栈空间大，栈比堆运行速度快。
+-   堆内存是无序存储，可以根据引用直接获取。
+-   基础数据类型比较稳定，而且相对来说占用的内存小。
+-   引用数据类型大小是动态的，而且是无限的。
+
+### 判断变量类型
+
+-   `typeof`：适用于所有值类型，和函数类型，判断是否是引用类型，**但不可细分**。
+-   `instanceof`：根据原型链判断用于识别正在处理的对象的类型，要求开发者明确地确认对象为某特定类型。
+-   `constructor`检测：根据实例对象寻找属性的顺序，若实例对象上没有实例属性或方法时，就去原型链上寻找。
+
+### == 和 ===
+
+除了 `==null` 以外，其他一律都用 `===`：
+
+```javascript
+const obj = { x: 100 };
+// 相当于 if (obj.a === null || obj.a === undefined)
+if (obj.a == null) {
+}
+```
+
+### 逻辑判断
+
+JavaScript 判断的是 `truly` 和 `falsely` 变量。
+
+`falsely`:
+
+```javascript
+!!0 === false;
+!!NaN === false;
+!!"" === false;
+!!null === false;
+!!undefined === false;
+!!false === false;
+```
+
+其余皆为 `truly` 变量。
+
+## JS 原型
+
+![prototype](https://s2.loli.net/2022/10/07/ouf4KHGsy7PgYlr.jpg)
+
+## JS 作用域
+
+作用域有全局作用域，函数作用域和块级作用域（ES6）
+
+例：
+
+```javascript
+let i, a;
+for (i = 0; i < 10; i++) {
+    a = document.createElement("a");
+    a.innerHTML = i + "<br>";
+    a.addEventListener("click", function (e) {
+        // 只有点击的时候才执行，然而i早就等于10了
+        e.preventDefault();
+        alert(i);
+    });
+    document.body.appendChild(a);
+}
+```
+
+改为：
+
+```javascript
+let a;
+for (let i = 0; i < 10; i++) {
+    // 每次都会产生块级作用域，相当于一个闭包
+    a = document.createElement("a");
+    a.innerHTML = i + "<br>";
+    a.addEventListener("click", function (e) {
+        e.preventDefault();
+        alert(i);
+    });
+    document.body.appendChild(a);
+}
+```
+
+## JS 闭包
+
+作用域的应用：闭包的自由变量的查找是在函数**定义**的地方向上级作用域查找，而不是执行的地方。
+
+1. 函数作为返回值：
+
+```javascript
+function create() {
+    let a = 100;
+    return function () {
+        console.log(a);
+    };
+}
+let fn = create();
+let a = 200;
+fn(); // 100
+```
+
+函数定义的地方 a 为 100，因此最后输出 100。
+
+2. 函数作为参数：
+
+```javascript
+function print(fn) {
+    let a = 200;
+    fn();
+}
+let a = 100;
+function fn() {
+    console.log(a);
+}
+print(fn); // 100
+```
+
+函数定义的地方 a 为 100，因此最后输出 100。
+
+## this 指向问题
+
+和闭包不同，this 的值是在执行的时候决定的，不是在定义的时候决定的。
+
+1. 谁调用了函数或者方法，那么这个函数或者对象中的 `this` 就指向谁：
+
+```javascript
+let getThis = function () {
+    console.log(this);
+};
+let obj = {
+    name: "Alice",
+    getThis: function () {
+        console.log(this);
+    },
+};
+getThis(); // window
+obj.getThis(); // obj
+```
+
+2. 匿名函数中`this`指向 `window`：
+
+```js
+let obj = {
+    getThis: function () {
+        return function () {
+            console.log(this);
+        };
+    },
+};
+obj.getThis()(); //window
+
+let obj = {
+    getThis: function () {
+        let that = this;
+        return function () {
+            console.log(that);
+        };
+    },
+};
+obj.getThis()(); // obj
+```
+
+3. 箭头函数中的 `this` 是在函数**定义**的时候就确定下来的，而不是在函数调用的时候确定的，因此无法使用 `apply`、`call` 和 `bind` 方法改变`this` 指向，它指向**父级作用域的执行上下文**。
+
+> javascript 中除了全局作用域，其他作用域都是由函数创建出来的，所以如果想确定 this 的指向，则找到离箭头函数最近的 **function**，与该 function 平级的执行上下文中的 this 即是箭头函数中的 this
+
+```js
+let obj = {
+    //此处的this即是箭头函数中的this
+    getThis: function () {
+        return () => {
+            console.log(this);
+        };
+    },
+};
+obj.getThis()(); //obj
+
+//代码中有两个箭头函数，由于找不到对应的function，所以this会指向window对象。
+let obj = {
+    getThis: () => {
+        // 继续往上找
+        return () => {
+            // 往上找
+            console.log(this);
+        };
+    },
+};
+obj.getThis()(); //window
+```
+
+## apply, call, bind
+
+## 异步 Javascript
+
+背景：javascript 是单线程语言，遇到等待不能卡住
+
+应用：网络请求，定时任务
+
+以下为用 Promise 加载图片：
+
+```javascript
+function loadImg(src) {
+    const p = new Promise((res, rej) => {
+        const img = document.createElement("img");
+        img.onLoad = () => {
+            resolve(img);
+        };
+        img.onerror = () => {
+            const err = new Error("图片加载失败" + src);
+        };
+        img.src = src;
+    });
+    return p;
+}
+
+loadImg(url)
+    .then((img) => {
+        console.log(img.width);
+        console.log(img.height);
+        return img;
+    })
+    .catch((err) => console.log(err));
+```
+
+![promise.png](https://s2.loli.net/2022/08/25/pYXIN2RrQ3jUiVw.png)
+
+使用实例：既可以返回普通对象也可以返回 promise
+
+### Event loop
+
+JS 执行是先执行完同步代码再执行异步代码。
+
+关键位置：
+
+-   **Call stack** 中的代码立刻执行
+-   **Call queue**为等待队列，里面的任务会被一个一个放入 Call stack 中
+-   **宏任务队列，微任务队列**
+
+过程：
+
+1.  **执行同步代码**（包括 async 函数内容和 Promise 构造函数），一行一行放在 Call stack 执行。遇到定时，网络请求等异步任务，先记录（宏任务放到宏任务队列，微任务放到微任务队列），时机一到就将代码移动到 Callback Queue
+2.  将**微任务**队列里的任务**全部**放入 Callback Queue 并执行（包括这一轮加入的所有微任务）。执行过程中遇到定时，网络请求等异步任务，一样需要记录。
+3.  如果 DOM 结构变化就会**重新渲染 DOM**
+4.  将**宏任务**队列里的**队头**任务放入 Callback Queue 并执行。执行过程中遇到定时，网络请求等异步任务，一样需要记录。
+5.  轮询查找 Callback Queue，如有代码，移动到 Call Stack 执行
+
+### DOM 事件和 Event loop
+
+DOM 事件也是使用回调（但不是异步），基于 Event loop，比如一个点击事件：
+
+```javascript
+btn.addEventListener("click", () => {
+    console.log("clicked");
+});
+```
+
+`addEventListener` 这一事件再执行同步代码的时候就已经执行，但要等用户点击按钮后才会将回调函数里的代码放入 Callback Queue，才会被 Event Loop 执行。
+
+### Promise
+
+pending 状态：不会触发 then 和 catch
+resolved 状态：会触发后续的 then 回调函数
+rejected 状态：会触发后续的 catch 回调函数
+
+then 和 catch 正常返回 resolved，里面有报错则返回 rejected
+
+注意：Promise 函数的构造函数里是同步代码，立刻执行
+
+```javascript
+const prom = new Promise((res, rej) => {
+    console.log("first");
+    res();
+    console.log("second");
+});
+// first
+// second
+```
+
+### async/await
+
+异步回调地狱 => Promise then catch 链式调用，但也是基于回调函数 => async/await 同步语法编写异步代码
+
+-   执行 async 函数，返回的是 Promise 对象
+-   await 相当于 Promise 的 then
+-   try...catch 可以替代 Promise 的 catch 捕获异常
+
+async 函数内容是要马上执行的（同步的代码）
+await 后的函数内容马上执行后，await 后面的内容看作回调函数（异步的代码）
+
+### 宏任务和微任务
+
+-   宏任务有 setTimeout，setInterval，Ajax，DOM 事件
+-   微任务有 Promise async/await
+-   微任务执行时机比宏任务早（宏任务在 DOM 渲染后触发，微任务在 DOM 渲染前触发）
+
+eventloop 和 DOM 渲染，JS 是单线程的而且和 DOM 渲染共用一个线程（不能同时执行），JS 执行的时候需要留一点时间给 DOM 渲染
+
+## Web API
+
+### DOM (Document Object Model)
+
+1. DOM 是哪种数据结构：从 xml 说起，可以自定义标签，html 可以看作一种特殊的 xml，DOM 本质是解析 HTML 文件得到的一棵**树**。
+2. 常用 API：
+
+-   获取元素：getElementByxx() | getElementsByxx() | querySelector() | querySelectorAll()
+-   新增结点：document.createElement()
+-   插入结点：appendChild()
+-   获取子结点列表: node.childNodes
+-   获取父元素：node.parentNode
+-   删除子元素：node.removeChild()
+-   NodeType, NodeName
+
+3. property：api 里没有 property，property 是用 **js 对象属性**的方式操作 DOM 对象时 DOM 的成员属性，**不能设置 DOM 的自定义属性**。
+4. attribute：通过 getAttribute/setAttribute 修改元素的属性，可以通过 setAttribute 设置自定义属性。
+5. 一次性插入多个 DOM 结点，考虑性能：
+
+-   DOM 查询做缓存
+    ```javascript
+    const pList = document.getElementsByTagName("p");
+    const length = pList.length;
+    for (let i = 0; i < length; i++) {}
+    ```
+-   频繁操作合并为 1 次：
+    ```javascript
+    const listNode = document.getElementById("list");
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i < 10; i++) {
+        const li = document.createElement("li");
+        li.innerHTML = `List item ${i}`;
+        fragment.appendChild(li);
+    }
+    listNode.appendChild(fragment);
+    ```
+
+### BOM (Browser Object Model)
+
+1. `screen.width` 屏幕宽度，`screen.height` 屏幕高度
+2. `location.href`,`location.protocol`,`location.host`,`location.search`,`location.hash`, `location.pathname`
+3. `history.forward` 网页前进，`history.back` 网页后退
+4. 获取浏览器 UA 的信息 `navigator.userAgent`
+5. urlparams
+
+### 事件绑定
+
+1. 事件绑定 addEventListener
+
+通用的事件绑定函数：
+
+```javascript
+function bindEvent(elem, type, fn) {
+    elem.addEventListener(type, fn);
+}
+const btn1 = document.getElementById("btn1");
+bindEvent(btn1, "click", (e) => {
+    e.preventDefault();
+    alert("clicked");
+});
+```
+
+`e.target` 可以获取元素本身。
+
+2.  事件冒泡
+    基于 DOM 的树形结构，顺着触发元素向上冒泡。
+    ![事件冒泡.png](https://s2.loli.net/2022/08/23/TzK3dhf9uDiy28O.png) 3. 事件代理
+    通过 `event.target` 实现，有些元素不方便挨个绑定事件，因此通过冒泡原理绑定到它的父元素上。
+
+优点：代码简洁，减少浏览器内存占用，适用于瀑布流等无限产生元素的情况。
+
+![事件代理.png](https://s2.loli.net/2022/08/23/Sctk3dBQeDWfrGJ.png)
+
+\*扩展：使用了事件代理的通用事件监听函数。
+
+### Ajax
+
+1. XMLHttpRequest / 手写 AJAX
+
+GET
+
+```javascript
+const xhr = new XMLHttpRequest();
+xhr.open("GET", "api/", true); // true 是异步
+xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+            alert(xhr.responseText);
+        } else {
+            // 其他情况
+        }
+    }
+};
+xhr.send(null);
+```
+
+POST
+
+```javascript
+const xhr = new XMLHttpRequest();
+xhr.open("POST", "/login", true); // true 是异步
+xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+            alert(xhr.responseText);
+        } else {
+            // 其他情况
+        }
+    }
+};
+const postData = {
+    username: "zs",
+    password: "xx",
+};
+xhr.send(JSON.stringify(postData));
+```
+
+readystate: ![readystate.png](https://s2.loli.net/2022/08/23/PtlO53h19ubsk6r.png)
+
+2. 状态码(status)
+   301 永久重定向，302 临时重定向，304 资源未改变，403 无权限等
+
+![status.png](https://s2.loli.net/2022/08/23/owiLHIvknFVQP4U.png)
+
+3. 跨域 - 同源策略：ajax 请求时，浏览器要求当前网页和 server 同源（协议、域名、端口必须一致） - 图片(可以用于统计打点，使用第三方服务）、css、script（实现 JSONP） 无视同源策略 - 所有跨域都必须经过 server 端允许
+4. JSONP
+
+-   原理：服务器可以拼接任意动态数据返回，只要符合 html 格式要求。同理使用 script 的 src 不一定就返回静态 js 文件，服务端可以拼接任意动态数据返回给 script 跨域的数据
+
+```html
+<script>
+    window.func = function (data) {
+        // 跨域得到信息
+        console.log(data);
+    };
+</script>
+<!-- 服务器返回的getData.js的内容就是 func({x:100, y:200})，该标签可以动态插入 -->
+<script src="https://xxx.xxx/getData.js?username=xxx&callback=func"></script>
+```
+
+5. 设置 CORS:
+   ![cors.png](https://s2.loli.net/2022/08/23/JtLqO7HW9KCSe2T.png)
+
+### 存储
+
+1. cookie：用于浏览器和服务器通讯，被借用于本地存储
+
+缺点：
+
+-   只有 4kB
+-   每次请求都带上，增加请求数据量
+-   只能用 `document.cookie='...'` 更改，api 简陋
+
+2. localStorage：永久存储，除非手动删除，sessionStorage：只存在于当前会话
+
+优点：api 简单易用(setItem, getItem)，不会随着 http 请求发送出去，最大 5M
+
+## http
+
+### 常见状态码
+
+-   200 成功
+-   301 永久重定向（配合 location，浏览器自动处理），浏览器第一次访问得到响应头里的 location 后以后都会去访问 location 里的地址，比如网站换域名了
+-   302 临时重定向（配合 location，浏览器自动处理），浏览器每次都要访问原域名得到 location，才会访问新地址。比如搜索引擎的跳转地址，短网址
+-   304 资源未被修改
+-   403 没有权限
+-   404 资源未找到
+-   500 服务器错误
+-   504 服务器在连接内部主机的时候网关超时
+
+### HTTP methods
+
+1. GET 获取数据
+2. POST 新建数据
+3. PATCH/PUT 更新数据，PATCH 是部分更新，数据量更小
+4. DELETE 删除数据
+
+### Restful API
+
+新的 API 设计方法，传统 API 是把每个 url 当作一个**功能（动作）**，Restful API 是把每个 url 当作唯一的**资源标识**。
+
+设计理念：
+
+1. 尽量不用 url 参数
+   传统 API 设计：`/api/list?pageIndex=2`，类似函数和参数
+   Restful API：`/api/list/2`
+2. 用上面的 method 表示操作类型
+
+|        传统 API 设计         |     Restful API     |
+| :--------------------------: | :-----------------: |
+|    POST /api/create-blog     |   POST /api/blog    |
+| POST /api/update-blog?id=100 | PATCH /api/blog/100 |
+|   GET /api/get-blog?id=100   |  GET /api/blog/100  |
+
+### http headers
+
+1. 常见请求头
+
+|         请求头         |                  说明                   |
+| :--------------------: | :-------------------------------------: |
+|         Accept         |        浏览器可以接收的数据格式         |
+|    Accept-Encoding     | 浏览器告知服务器支持的压缩算法，如 gzip |
+|    Accept-Language     |       浏览器告知服务器支持的语言        |
+| Connection: keep-alive |        一次 TCP 连接是否重复使用        |
+|         cookie         |             同域时都会带上              |
+|          Host          |               请求的域名                |
+|     User-Agent(UA)     |               浏览器信息                |
+|      Content-type      |         发送数据的格式（POST）          |
+
+2. 常见响应头
+
+|      响应头      |                                                                               说明                                                                               |
+| :--------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+|   Content-type   |                                                                          返回数据的格式                                                                          |
+|  Content-length  |                                                                     返回数据的大小，多少字节                                                                     |
+| Content-Encoding |                                                                   返回数据的压缩算法，如 gzip                                                                    |
+|    Set-Cookie    |                                                                           设置 cookie                                                                            |
+|  cache-control   | max-age/no-cache（告知浏览器不要强制缓存）/no-store（告知浏览器不要强制缓存且服务端没有缓存措施）/private（只允许终端用户做缓存）/public（也允许中间代理做缓存） |
+|     Expires      |                                                                 过期时间，被 cache-control 代替                                                                  |
+
+可以自定义 headers（可用于协商认证）。
+
+### http 缓存
+
+浏览器第一次访问时会从服务器获取各种静态资源（包括 js，css，图片等），后续就没有必要再重复获取这些资源，因此需要缓存以减少网络请求的次数和体积，加快页面加载。
+
+1. 强制缓存
+
+初次请求时，对于可以缓存的数据，服务端可以在响应头上加入 `Cache-Control: max-age=xxx`（单位是秒）。再次请求时，浏览器判断本地缓存数据未失效的情况下（即 `Cache-Control` 的 `max-age` 没有过期或者 `Expires` 的缓存时间没有过期），就会直接使用浏览器的缓存数据，**不会**再向服务器发送任何请求。强制缓存生效时，`http` 状态码为 200。
+
+在这期间，如果服务器端的资源修改了，页面拿不到最新资源。解决，利用哈希摘要命名文件，一旦文件内容更改，文件名也会更改。
+
+2. 协商缓存
+
+由**服务端**来判断资源缓存策略，判断客户端资源是否和服务端资源一样。
+
+当第一次请求时服务器返回的响应头中没有 `Cache-Control` 和 `Expires` 或这两个属性过期，或属性设置为 `no-cache` 时（即不走强缓存），那么浏览器第二次请求时就会与服务器进行协商，与服务器端对比判断资源是否进行了修改更新。
+
+![协商缓存.png](https://s2.loli.net/2022/08/24/eDf5yPClgsQczXI.png)
+
+如果服务器端的资源没有修改，那么就会返回 304 状态码，告诉浏览器可以使用缓存中的数据，这样就减少了服务器的数据传输压力。如果数据有更新就会返回 200 状态码，服务器就会返回更新后的资源并且将缓存信息一起返回。
+
+资源标识：
+
+-   Last-Modified 资源的最后修改时间，值**等于**浏览器再次请求时使用的 If-Modified-Since
+    ![last-modified.png](https://s2.loli.net/2022/08/24/uklz8Tv5pwM3Ktr.png)
+-   Etag 资源的**唯一**标志（类似 webpack 的哈希），值**等于**浏览器再次请求时使用的 If-Not-Match
+    ![etag.png](https://s2.loli.net/2022/08/24/S7UOjYRVqxACf2r.png)
+
+注意两者可以共存，Etag 优先级更高，因为 `Last-Modified` 只能精确到秒级。
+
+![缓存综述.png](https://s2.loli.net/2022/08/24/pDM5In9uoPLTCSh.png)
+
+注意：第一次会看 cache-control
+
+### 刷新操作
+
+正常刷新：两种缓存都有效
+手动刷新（F5）：强制缓存失效，协商缓存有效
+强制刷新（ctrl+F5）：都失效
+
+### HTTPS
+
+HTTPS 引入了数据加密和身份验证机制。在开始传输数据之前，通过安全可靠的 TLS 协议进行加密，从而保证后续加密传输数据的安全性。（内容加密，身份认证，数据完整性）
+
+受 TLS 协议保护的通信过程：先对传输的数据进行了加密（使用对称加密算法）。并且对称加密的密钥是为每一个连接唯一生成的（基于 TLS 握手阶段协商的加密算法和共享密钥），然后发送的每条消息都会通过消息验证码（Message authentication code, MAC），来进行消息完整性检查，最后还可以使用公钥对通信双方进行身份验证。
+
+流程如下：
+
+1. 浏览器向服务器的 443 端口发出请求，询问对方支持的对称加密算法和非对称加密算法
+2. 服务器回应自己支持的算法
+3. 浏览器选择双方都支持的加密算法，并请求服务器出示自己的证书（公钥）
+4. 服务器回应自己的证书
+5. 浏览器随机产生一个用于本次会话的对称加密的钥匙（对称加密），并使用服务器证书中附带的**公钥**对该钥匙进行加密后传递给服务器（非对称加密）
+6. 服务器用自己的私钥取出浏览器产生的对称密钥，并为本次会话保持该密钥。第三方不知道服务器的私钥，即使截获了数据也无法解密。非对称加密让任何浏览器都可以与服务器进行加密会话
+7. 浏览器使用对称加密的钥匙对请求消息加密后传送给服务器，服务器使用该对称加密的钥匙进行解密；服务器使用对称加密的钥匙对响应消息加密后传送给浏览器，浏览器使用该对称加密的钥匙进行解密。第三方不知道对称加密的钥匙，即使截获了数据也无法解密。对称加密还提高了加密速度。
+
+后面使用对称加密的目的是对称加密比较便宜（计算量小）。
+
+#### 证书
+
+防止中间人攻击。
+
+服务器首先向可信第三方机构请求颁发证书（其中含有公钥和私钥），浏览器支持验证大多数可信第三方机构的证书（用 CA 的公钥验证证书）。当中间人使用自己的证书时，浏览器会发现网站证书无法验证，对不上
+
+![HTTPS.png](https://s2.loli.net/2022/08/24/hxGRJCyt1YbH3un.png)
+
+[参考](https://blog.csdn.net/ly593988490/article/details/106683440/)
+
+## 运行环境
+
+### 网页的加载和渲染
+
+#### 加载资源的形式：
+
+html 代码，媒体文件，js，css
+
+#### 加载资源的过程
+
+URL 解析 -> DNS 查询 -> 建立连接 -> 处理请求 -> 接受响应 -> 渲染页面
+
+#### 渲染页面的过程
+
+1. HTML 被解析成 DOM 树；
+2. CSS 被解析成 CSSOM 树；
+3. 结合 DOM 树和 CSSOM 树，生成一棵渲染树(Render Tree)，这一过程称为 **Attachment**；
+4. 遇到 script 则暂停渲染，优先加载执行 js 代码，完成再继续
+5. 生成布局(flow)，浏览器在屏幕上“画”出渲染树中的所有节点；
+6. 将布局绘制(paint)在屏幕上，显示出整个页面。
+
+#### window.onload 和 DOMContentLoaded 的区别
+
+```javascript
+window.addEventListener("load", function () {
+    // 页面的全部资源加载完才会执行，包括图片和视频
+});
+document.addEventListener("DOMContentLoaded", function () {
+    // DOM 渲染完即可执行，此时图片和视频可能还没加载完
+});
+```
+
+### 性能优化
+
+原则：多使用内存和缓存，减少 CPU 计算量，减少网络加载耗时，空间换时间
+
+-   减少资源体积：压缩代码
+-   减少访问次数：合并代码，合并图片（雪碧图），SSR 服务器端渲染，缓存
+-   使用更快的网络：CDN
+-   让渲染更快：
+    -   CSS 放在 head，JS 放在 body 最下面
+    -   尽早开始执行 JS，用 DOMContentloaded 触发
+-   懒加载（下滑加载更多）
+    ![懒加载](https://s2.loli.net/2022/08/25/aT5PAXkFf1OhVLn.png)
+-   对 DOM 查询做缓存，频繁的 DOM 操作合并到一起插入 DOM
+-   防抖节流（拖拽）
+
+## 安全
+
+### CSRF / XSRF（跨站请求伪造）
+
+攻击者诱导受害者进入第三方网站，在第三方网站中，向被攻击网站发送跨站请求。利用受害者在被攻击网站已经获取的注册凭证，绕过后台的用户验证，达到冒充用户对被攻击的网站执行某项操作的目的。
+
+1. 浏览并登录信任网站（举例：淘宝）
+2. 登录成功后在浏览器产生信息存储，且该网站只要登录不需要输入任何其他信息就可以付款（举例：cookie）
+3. 用户在没有登出淘宝的情况下，访问危险网站（或点击包含恶意代码的邮件）
+4. 危险网站中存在恶意代码(`<img src=xxx.com/pay?id=200 />`，注意 img 支持跨域)，代码为发送一个恶意请求（举例：购买商品/余额转账）
+5. 携带刚刚在浏览器产生的信息进行恶意请求
+6. 淘宝验证请求为合法请求（区分不出是否是该用户发送）
+
+防御措施：
+
+1. 请求地址添加 token ，使黑客无法伪造用户请求
+2. HTTP 头自定义属性验证（类似上一条）
+3. 涉及到数据修改操作严格使用 post 请求（不能简单支持跨域）而不是 get 请求
+4. 显示验证方式：添加验证码、密码等
+
+### XSS（跨站脚本攻击）
+
+攻击者在目标网站源代码中植入恶意代码（js / html），用户在浏览器上运行时可以获取用户敏感信息（cookie / session）、修改 web 页面以欺骗用户、与其他漏洞相结合形成蠕虫等。
+
+解决方案：对特殊字符进行转译（小于号换为`&gt;`，合理使用 get/post 等请求方式，对于 URL 携带参数谨慎使用
+
+### HTTPS 中间人攻击
+
+中间人攻击过程如下：
+
+1. 服务器向客户端发送公钥；
+2. 攻击者截获公钥，保留在自己手上，然后攻击者自己生成一个【伪造的】公钥，发给客户端；
+3. 客户端收到伪造的公钥后，生成加密 hash（秘钥） 值发给服务器；
+4. 攻击者获得加密 hash 值，用自己的私钥解密获得真秘钥；
+5. 同时生成假的加密 hash 值，发给服务器；
+6. 服务器用私钥解密获得假秘钥；
+7. 服务器用假秘钥加密传输信息；
+
+防范方法：
+
+服务器在发送浏览器的信息中加入 CA 证书（含公钥），浏览器可以验证 CA 证书的有效性；
