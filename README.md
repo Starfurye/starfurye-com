@@ -5,11 +5,11 @@ My brand new blog built with Gatsby & React from scratch!
 ## TODO list
 
 -   ✅ TOC
+-   ✅ add some quotes(warning, danger, note and so on)
 -   🚧 Light mode
 -   Tags
 -   Something under posts (comments...)
 -   styling codeBlock
--   add some quotes(warning, danger, note and so on)
 
 ## Bug list
 
