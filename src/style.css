@@ -218,7 +218,7 @@ main {
 /* article list item */
 .article-list-item {
     margin: 40px 0;
-    border-bottom: 1px solid #ced8e0;
+    border-bottom: 1px solid rgba(206, 216, 224, 0.3);
 }
 .article-list-item:last-child {
     border-bottom: 1px solid transparent;
@@ -353,6 +353,64 @@ section.post ul.toc-list li::before {
 .footer-tools {
     display: block;
     color: var(--main-font-color);
+}
+
+/* QuoteBlock */
+.quote-block {
+    color: #fff;
+    border: 2px solid #000;
+    border-radius: 5px;
+    position: relative;
+    background-color: #393f4a;
+}
+.quote-block span {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+}
+.quote-block-title {
+    margin-top: 0;
+    padding: 7px 35px;
+    font-weight: 700;
+}
+.quote-block-message {
+    padding: 7px 35px;
+}
+.quote-must {
+    border: 5px solid #51ae51;
+}
+.quote-title-must {
+    background-color: #51ae51;
+}
+.quote-suggestion {
+    border: 5px solid #64bbed;
+}
+.quote-title-suggestion {
+    background-color: #64bbed;
+}
+.quote-warning {
+    border: 5px solid #cc9030;
+}
+.quote-title-warning {
+    background-color: #cc9030;
+}
+.quote-danger {
+    border: 5px solid #bb0000;
+}
+.quote-title-danger {
+    background-color: #bb0000;
+}
+.quote-note {
+    border: 5px solid #8080ff;
+}
+.quote-title-note {
+    background-color: #8080ff;
+}
+.quote-quote {
+    border: 5px solid #0b0b0b;
+}
+.quote-title-quote {
+    background-color: #0b0b0b;
 }
 
 /* code */

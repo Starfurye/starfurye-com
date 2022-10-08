@@ -2,9 +2,11 @@
 title: "前端基础回顾(II) - Javascript"
 categories: ["FE"]
 date: "2022-08-22"
-last-modified: "2022-10-07"
+last-modified: "2022-10-08"
 brief-description: "前端基础回顾是我用来准备前端基础面试（一面和二面部分）时写的笔记，随着面试次数增加不断更新。"
 ---
+
+import { Quotes } from "../src/components/Quotes.js";
 
 ## 变量
 
@@ -16,9 +18,9 @@ brief-description: "前端基础回顾是我用来准备前端基础面试（一
 ------------------------------------ ... ---------
 |s| exponent  |    fraction                      |
 ------------------------------------ ... ---------
-^            ^                                  ^
-|            |                                  |
-63           52                                 0
+^             ^                                  ^
+|             |                                  |
+63            52                                 0
 s: 0|1，符号位
 e: 指数位，减去偏置常数 1023（2^n - 1，n为指数位数，f中有一位在小数点前的1的隐藏位中）
 f: 小数位，不足52位补零
@@ -244,15 +246,13 @@ let obj = {
 obj.getThis()(); //window
 ```
 
-## apply, call, bind
-
 ## 异步 Javascript
 
 背景：javascript 是单线程语言，遇到等待不能卡住
 
 应用：网络请求，定时任务
 
-以下为用 Promise 加载图片：
+以下为用 Promise 加载图片的例子：
 
 ```javascript
 function loadImg(src) {
@@ -320,7 +320,11 @@ rejected 状态：会触发后续的 catch 回调函数
 
 then 和 catch 正常返回 resolved，里面有报错则返回 rejected
 
-注意：Promise 函数的构造函数里是同步代码，立刻执行
+<Quotes
+    quoteType="Warning"
+    title="Promise构造函数和Event loop"
+    message="注意：Promise 函数的构造函数里是同步代码，立刻执行。"
+/>
 
 ```javascript
 const prom = new Promise((res, rej) => {
@@ -415,9 +419,12 @@ bindEvent(btn1, "click", (e) => {
 
 `e.target` 可以获取元素本身。
 
-2.  事件冒泡
-    基于 DOM 的树形结构，顺着触发元素向上冒泡。
-    ![事件冒泡.png](https://s2.loli.net/2022/08/23/TzK3dhf9uDiy28O.png) 3. 事件代理
+2. 事件冒泡
+   基于 DOM 的树形结构，顺着触发元素向上冒泡。
+
+![事件冒泡.png](https://s2.loli.net/2022/08/23/TzK3dhf9uDiy28O.png)
+
+3.  事件代理
     通过 `event.target` 实现，有些元素不方便挨个绑定事件，因此通过冒泡原理绑定到它的父元素上。
 
 优点：代码简洁，减少浏览器内存占用，适用于瀑布流等无限产生元素的情况。
@@ -475,7 +482,12 @@ readystate: ![readystate.png](https://s2.loli.net/2022/08/23/PtlO53h19ubsk6r.png
 
 ![status.png](https://s2.loli.net/2022/08/23/owiLHIvknFVQP4U.png)
 
-3. 跨域 - 同源策略：ajax 请求时，浏览器要求当前网页和 server 同源（协议、域名、端口必须一致） - 图片(可以用于统计打点，使用第三方服务）、css、script（实现 JSONP） 无视同源策略 - 所有跨域都必须经过 server 端允许
+3. 跨域
+
+-   同源策略：ajax 请求时，浏览器要求当前网页和 server 同源（协议、域名、端口必须一致）
+-   图片(可以用于统计打点，使用第三方服务）、css、script（实现 JSONP） 无视同源策略
+-   所有跨域都必须经过 server 端允许
+
 4. JSONP
 
 -   原理：服务器可以拼接任意动态数据返回，只要符合 html 格式要求。同理使用 script 的 src 不一定就返回静态 js 文件，服务端可以拼接任意动态数据返回给 script 跨域的数据
@@ -492,7 +504,8 @@ readystate: ![readystate.png](https://s2.loli.net/2022/08/23/PtlO53h19ubsk6r.png
 ```
 
 5. 设置 CORS:
-   ![cors.png](https://s2.loli.net/2022/08/23/JtLqO7HW9KCSe2T.png)
+
+![cors.png](https://s2.loli.net/2022/08/23/JtLqO7HW9KCSe2T.png)
 
 ### 存储
 
@@ -595,22 +608,23 @@ readystate: ![readystate.png](https://s2.loli.net/2022/08/23/PtlO53h19ubsk6r.png
 
 资源标识：
 
--   Last-Modified 资源的最后修改时间，值**等于**浏览器再次请求时使用的 If-Modified-Since
-    ![last-modified.png](https://s2.loli.net/2022/08/24/uklz8Tv5pwM3Ktr.png)
--   Etag 资源的**唯一**标志（类似 webpack 的哈希），值**等于**浏览器再次请求时使用的 If-Not-Match
-    ![etag.png](https://s2.loli.net/2022/08/24/S7UOjYRVqxACf2r.png)
+-   Last-Modified 资源的最后修改时间，值**等于**浏览器再次请求时使用的 If-Modified-Since。
+
+![last-modified.png](https://s2.loli.net/2022/08/24/uklz8Tv5pwM3Ktr.png)
+
+-   Etag 资源的**唯一**标志（类似 webpack 的哈希），值**等于**浏览器再次请求时使用的 `If-Not-Match`。
+
+![etag.png](https://s2.loli.net/2022/08/24/S7UOjYRVqxACf2r.png)
 
 注意两者可以共存，Etag 优先级更高，因为 `Last-Modified` 只能精确到秒级。
 
 ![缓存综述.png](https://s2.loli.net/2022/08/24/pDM5In9uoPLTCSh.png)
 
-注意：第一次会看 cache-control
-
 ### 刷新操作
 
-正常刷新：两种缓存都有效
-手动刷新（F5）：强制缓存失效，协商缓存有效
-强制刷新（ctrl+F5）：都失效
+-   正常刷新：两种缓存都有效
+-   手动刷新（F5）：强制缓存失效，协商缓存有效
+-   强制刷新（ctrl+F5）：都失效
 
 ### HTTPS
 
@@ -674,16 +688,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
 ### 性能优化
 
-原则：多使用内存和缓存，减少 CPU 计算量，减少网络加载耗时，空间换时间
+<Quotes
+    quoteType="Suggestion"
+    title="性能优化的原则"
+    message="多使用内存和缓存，减少 CPU 计算量，减少网络加载耗时，空间换时间。"
+/>
 
 -   减少资源体积：压缩代码
 -   减少访问次数：合并代码，合并图片（雪碧图），SSR 服务器端渲染，缓存
 -   使用更快的网络：CDN
--   让渲染更快：
-    -   CSS 放在 head，JS 放在 body 最下面
-    -   尽早开始执行 JS，用 DOMContentloaded 触发
+-   让渲染更快： CSS 放在 head 标签内，JS 放在 body 最下面；尽早开始执行 JS，用 DOMContentloaded 触发
 -   懒加载（下滑加载更多）
-    ![懒加载](https://s2.loli.net/2022/08/25/aT5PAXkFf1OhVLn.png)
+
+![懒加载](https://s2.loli.net/2022/08/25/aT5PAXkFf1OhVLn.png)
+
 -   对 DOM 查询做缓存，频繁的 DOM 操作合并到一起插入 DOM
 -   防抖节流（拖拽）
 
