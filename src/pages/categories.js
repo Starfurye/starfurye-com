@@ -15,6 +15,7 @@ const colorsPool = [
     "#A18276",
     "#B8DBD9",
     "#3C887E",
+    "#7D387D",
 ];
 
 const CategoriesPage = ({

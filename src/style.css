@@ -1,6 +1,6 @@
 * {
     --back-color: #17191e;
-    --main-font-color: #eee;
+    --main-font-color: #dcdcdc;
     --main-border: #8080ff;
     --small-font-color: #7a829a;
     --main-content-width: 900px;
@@ -16,7 +16,10 @@ body {
     height: 100%;
 }
 body {
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    /* font-family: Verdana, Geneva, Tahoma, sans-serif; */
+    font-family: Roboto, Helvetica, Tahoma, Arial, "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei",
+        "Noto Sans CJK", sans-serif;
     background-color: var(--main-content-color);
     line-height: 1.65;
 }
@@ -44,7 +47,7 @@ code::selection,
 }
 ol li {
     margin-bottom: 0.5rem;
-    list-style-position: inside;
+    list-style: none;
 }
 ul li {
     margin-bottom: 0.5rem;
@@ -59,11 +62,16 @@ blockquote {
 }
 table {
     border-collapse: collapse;
+    margin: 0 auto;
 }
 td,
 th {
     border: 1px solid #fff;
     padding: 5px;
+}
+strong {
+    font-weight: 700;
+    color: #fff;
 }
 
 /* scroll bar */
@@ -274,14 +282,23 @@ section.post a:hover {
     border: 0;
     color: var(--main-border);
 }
-section.post ul li::before {
-    content: "\2B17";
-    margin-right: 0.5rem;
+section.post ol li {
+    list-style: decimal;
+    list-style-position: inside;
+}
+section.post ul li {
+    list-style: disc;
+    list-style-position: inside;
+}
+section.post ul li::marker,
+section.post ol li::marker {
     color: var(--main-border);
+    font-size: 1.5rem;
 }
 section.post p {
     overflow-x: auto;
 }
+
 /* TOC */
 a.header-anchor {
     border: 0 !important;
@@ -300,8 +317,10 @@ ul.toc-list {
     border-left: 1px solid var(--main-border);
 }
 ul.toc-list li {
-    list-style-type: none;
     margin-left: 24px;
+}
+ul.toc-list li::marker {
+    content: "";
 }
 ul.toc-list li a {
     font-size: 0.9rem;

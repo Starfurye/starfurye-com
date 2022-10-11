@@ -2,11 +2,25 @@
 title: "About Gatsby"
 categories: ["framework"]
 date: "2022-05-01"
-last-modified: "2022-09-15"
+last-modified: "2022-10-08"
 brief-description: "边做边学，逐渐了解 Gatsby"
 ---
 
+import { Quotes } from "../src/components/Quotes.js";
+
 ## Gatsby 是一个静态网页生成器
+
+<Quotes
+    quoteType="Quote"
+    title="Faster and Faster"
+    message={
+        <i>
+            To paraphrase Tolstoy, all fast websites are alike, but all slow
+            websites are slow in different ways.” — Kyle Mathews, creator of
+            Gatsby
+        </i>
+    }
+/>
 
 Gatsby 是一个静态网页生成器，在 Node 中无法访问 `document`, `window` 等不在 building 过程中生成的变量。其设计初衷也不是为了做交互。
 
