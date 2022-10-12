@@ -6,6 +6,7 @@ My brand new blog built with Gatsby & React from scratch!
 
 -   ✅ TOC
 -   ✅ add some quotes(warning, danger, note and so on)
+-   Image component
 -   🚧 Light mode
 -   Tags
 -   Something under posts (comments...)
