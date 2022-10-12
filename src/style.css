@@ -73,6 +73,9 @@ strong {
     font-weight: 700;
     color: #fff;
 }
+figcaption {
+    font-style: italic;
+}
 
 /* scroll bar */
 ::-webkit-scrollbar {
@@ -177,6 +180,37 @@ main {
     width: 100%;
     max-width: var(--main-content-width);
 }
+/* main container lists */
+.main-container ol li {
+    list-style: decimal;
+    list-style-position: inside;
+}
+.main-container ul li {
+    list-style: disc;
+    list-style-position: inside;
+}
+.main-container ul li::marker,
+.main-container ol li::marker {
+    color: var(--main-border);
+    font-size: 1.5rem;
+}
+.main-container a {
+    font-weight: 700;
+    border-bottom: 2px solid var(--main-border);
+}
+.main-container a:hover {
+    cursor: pointer;
+    border: 0;
+    color: var(--main-border);
+}
+
+.img-block {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+.img-block img {
+    max-width: 600px;
+}
 
 /* main header */
 .main-header {
@@ -273,28 +307,7 @@ section.post h5 {
     margin: 1rem 0;
     border-bottom: 1px solid var(--small-font-color);
 }
-section.post a {
-    font-weight: 700;
-    border-bottom: 2px solid var(--main-border);
-}
-section.post a:hover {
-    cursor: pointer;
-    border: 0;
-    color: var(--main-border);
-}
-section.post ol li {
-    list-style: decimal;
-    list-style-position: inside;
-}
-section.post ul li {
-    list-style: disc;
-    list-style-position: inside;
-}
-section.post ul li::marker,
-section.post ol li::marker {
-    color: var(--main-border);
-    font-size: 1.5rem;
-}
+
 section.post p {
     overflow-x: auto;
 }
@@ -491,6 +504,12 @@ pre[class*="language-"] {
     blockquote {
         font-size: 1rem;
         margin: 0 0 1.5rem;
+    }
+    .img-block img {
+        max-width: 80vw;
+    }
+    figcaption {
+        font-size: 0.8rem;
     }
 
     /* navigation */
