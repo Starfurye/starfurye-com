@@ -200,7 +200,6 @@ main {
 }
 .main-container a:hover {
     cursor: pointer;
-    border: 0;
     color: var(--main-border);
 }
 
