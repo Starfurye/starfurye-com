@@ -34,7 +34,10 @@ const CategoriesPage = ({
             <section>
                 <ul>
                     {group.map((category, index) => (
-                        <li key={category.fieldValue}>
+                        <li
+                            style={{ listStyle: "none" }}
+                            key={category.fieldValue}
+                        >
                             {/* <Link
                                 to={`/categories/${kekabCase(
                                     category.fieldValue
