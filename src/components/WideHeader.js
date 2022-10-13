@@ -7,7 +7,8 @@ const WideHeader = ({ title, subtitle, backImgUrl }) => {
             style={{
                 width: "100%",
                 marginBottom: "2rem",
-                background: `url(${backImgUrl}) repeat`,
+                background: `url(${backImgUrl}) no-repeat`,
+                backgroundSize: "cover",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
